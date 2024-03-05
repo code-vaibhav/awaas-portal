@@ -7,7 +7,11 @@ import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Popconfirm, notification, Space, Input } from "antd";
-import EditApplication from "@/components/EditApplication";
+import EditRecord from "@/components/EditRecord";
+import { langState } from "@/utils/atom";
+import { useRecoilValue } from "recoil";
+import text from "@/text.json";
+import WithAuthorization from "@/components/WithAuth";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -21,96 +25,105 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export default function Applications() {
-  const message = {
-    success: "Application Successfully Deleted",
-    error: "Error in deleting application, please try again",
-  };
-  const [applications, setApplications] = useState([]);
-  const [application, setApplication] = useState();
+const Records = ({ role }) => {
+  const [records, setRecords] = useState([]);
+  const [record, setRecord] = useState();
   const [api, contextHolder] = notification.useNotification();
   const [open, setOpen] = useState(false);
-  const [pno, setPno] = useState("");
+  const [id, setId] = useState("");
+  const [processing, setProcessing] = useState(false);
+  const t = text[useRecoilValue(langState)];
 
-  const openNotification = (type) => {
+  const openNotification = (type, message) => {
     api[type]({
-      message: message[type],
+      message: message,
       placement: "topRight",
     });
   };
 
-  const fetchApplications = () => {
-    fetch(`${process.env.BACKEND_URL}/applications`, {
+  const fetchRecords = () => {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/all`, {
       method: "GET",
       credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        setApplications(data);
+        if (data.status) {
+          setRecords(data.message);
+        } else {
+          console.error(data.message);
+        }
       })
       .catch((err) => console.error(err));
   };
 
-  useEffect(fetchApplications, []);
+  useEffect(fetchRecords, []);
 
-  const deleteApplication = (uid) => {
-    fetch(`${process.env.BACKEND_URL}/application/${uid}`, {
-      method: "POST",
+  const deleteRecord = (id) => {
+    setProcessing(id);
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/delete`, {
+      method: "DELETE",
       credentials: "include",
-      cache: "no-cache",
+      body: { id },
     })
-      .then((res) => {
-        openNotification("success");
-        fetchApplications();
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status) {
+          openNotification("success", t["Record Deleted"]);
+          fetchRecords();
+        } else {
+          console.error(data.message);
+          openNotification("error", t["Error Deleting Record"]);
+        }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error");
-      });
+        openNotification("error", t["Error Deleting Record"]);
+      })
+      .finally(() => setProcessing(false));
   };
 
   const classes = useStyles();
 
   const columns = [
     {
-      field: "rno",
-      headerName: "Registration No",
+      field: "registrationNumber",
+      headerName: t["Registration No"],
       flex: 1,
     },
     {
       field: "pno",
-      headerName: "PNO No",
+      headerName: t["PNO No"],
       flex: 1,
     },
     {
       field: "name",
-      headerName: "Name",
+      headerName: t["Name"],
       flex: 1,
     },
     {
       field: "rank",
-      headerName: "Rank",
+      headerName: t["Rank"],
       flex: 1,
     },
     {
-      field: "badge",
-      headerName: "Badge No",
+      field: "badgeNumber",
+      headerName: t["Badge No"],
       flex: 1,
     },
     {
       field: "weighting",
-      headerName: "Initial Weighting",
+      headerName: t["Initial Weighting"],
       flex: 1,
     },
     {
       field: "current_waiting",
-      headerName: "Current Weighting",
+      headerName: t["Current Weighting"],
       flex: 1,
     },
     {
       field: "status",
-      headerName: "Status",
+      headerName: t["Status"],
       flex: 0,
       renderCell: (params) => (
         <Chip
@@ -121,13 +134,13 @@ export default function Applications() {
       ),
     },
     {
-      field: "applied_at",
-      headerName: "Application Date",
+      field: "applicationDate",
+      headerName: t["Appllication Date"],
       flex: 1,
     },
     {
       field: "action",
-      headerName: "Actions",
+      headerName: t["Actions"],
       renderCell: (params) => (
         <Space>
           <Button
@@ -135,28 +148,37 @@ export default function Applications() {
             color="warning"
             startIcon={<EditIcon fontSize="inherit" />}
             onClick={() => {
-              setApplication(params.row);
+              setRecord(params.row);
               setOpen(true);
             }}
           >
-            Edit
+            {t["Edit"]}
           </Button>
-          <Popconfirm
-            placement="topLeft"
-            title={`Delete the application with PNO: ${params.row.pno}?`}
-            description="Are you sure to delete this application?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => deleteApplication(params.row)}
-          >
-            <Button
-              variant="outlined"
-              color="warning"
-              startIcon={<DeleteIcon fontSize="inherit" />}
+          {role === "root" && (
+            <Popconfirm
+              placement="topLeft"
+              title={t[`Are you sure to delete this record?`]}
+              okText={t["Yes"]}
+              cancelText={t["No"]}
+              onConfirm={() => deleteRecord(params.row.id)}
             >
-              Delete
-            </Button>
-          </Popconfirm>
+              <Button
+                variant="outlined"
+                color="warning"
+                disabled={processing}
+                startIcon={<DeleteIcon fontSize="inherit" />}
+              >
+                {processing === params.row.id && (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }
+                  />
+                )}
+                {t["Delete"]}
+              </Button>
+            </Popconfirm>
+          )}
         </Space>
       ),
       flex: 1,
@@ -167,24 +189,30 @@ export default function Applications() {
     <div className={classes.root}>
       {contextHolder}
       <Typography variant="h4" component="h4" align="center" m={5}>
-        Records
+        {t["Records"]}
       </Typography>
-      <EditApplication
-        application={application}
+      <EditRecord
+        record={record}
         open={open}
         setOpen={setOpen}
         openNotification={openNotification}
-        fetchApplications={fetchApplications}
+        fetchrecords={fetchRecords}
       />
       <Input
-        placeholder="Enter PNO No to find"
-        value={pno}
-        onChange={(e) => setPno(e.target.value)}
+        placeholder={t["Enter PNO or Registration No"]}
+        value={id}
+        onChange={(e) => setId(e.target.value)}
+        style={{ marginBottom: "5px" }}
+        type="text"
       />
       <DataGrid
-        rows={applications.filter((a) => String(a.pno).includes(pno))}
+        rows={records?.filter(
+          (a) =>
+            String(a.pno).includes(id) ||
+            String(a.registrionNumber).includes(id)
+        )}
         columns={columns}
-        getRowId={(row) => row.uid}
+        getRowId={(row) => row.id}
         showColumnVerticalBorder
         showCellVerticalBorder
         initialState={{
@@ -203,4 +231,6 @@ export default function Applications() {
       />
     </div>
   );
-}
+};
+
+export default () => <WithAuthorization Children={Records} isRoot={false} />;

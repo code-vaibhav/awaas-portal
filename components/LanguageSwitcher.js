@@ -1,18 +1,27 @@
-// components/LanguageSwitcher.js
-import { useTranslation } from "next-i18next";
 import { Button, Space } from "antd";
+import { useRecoilState } from "recoil";
+import { langState } from "@/utils/atom";
 
 const LanguageSwitcher = () => {
-  const { i18n } = useTranslation();
-
-  const changeLanguage = (language) => {
-    i18n.changeLanguage(language);
-  };
-
+  const [lang, setLang] = useRecoilState(langState);
   return (
     <Space>
-      <Button onClick={() => changeLanguage("en")}>English</Button>
-      <Button onClick={() => changeLanguage("hi")}>हिन्दी</Button>
+      <Button
+        type={lang !== "en" ? "primary" : "default"}
+        onClick={() => setLang("en")}
+        disabled={lang === "en"}
+        style={{ color: "white" }}
+      >
+        English
+      </Button>
+      <Button
+        type={lang !== "hi" ? "primary" : "default"}
+        disabled={lang === "hi"}
+        onClick={() => setLang("hi")}
+        style={{ color: "white" }}
+      >
+        हिन्दी
+      </Button>
     </Space>
   );
 };

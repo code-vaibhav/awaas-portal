@@ -1,6 +1,9 @@
 import { useState } from "react";
-import { Form, Input, Select, Space, Button } from "antd";
+import { Form, Input, Select, Button } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { useRecoilValue } from "recoil";
+import { langState } from "@/utils/atom";
+import text from "@/text.json";
 
 export default function NoticeForm({
   mode,
@@ -10,47 +13,60 @@ export default function NoticeForm({
   fetchNotices,
 }) {
   const [processing, setProcessing] = useState(false);
+  const t = text[useRecoilValue(langState)];
 
   const addNotice = (values) => {
     console.log(values);
     setProcessing(true);
-    fetch(`${process.env.BACKEND_URL}/addNotice`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/add`, {
       method: "POST",
       credentials: "include",
       cache: "no-cache",
       body: JSON.stringify(values),
     })
-      .then((res) => {
-        openNotification("success");
-        fetchNotices();
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status) {
+          openNotification("success", t["Notice Added"]);
+          setOpen(false);
+        } else {
+          console.error(data.message);
+          openNotification("error", t["Error Adding Notice"]);
+        }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error");
+        openNotification("error", t["Error Adding Notice"]);
       })
       .finally(() => {
-        setOpen(false);
         setProcessing(false);
       });
   };
 
-  const editNotice = (uid) => {
+  const editNotice = (values) => {
     setProcessing(true);
-    fetch(`${process.env.BACKEND_URL}/notice/${uid}`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/update`, {
       method: "POST",
       credentials: "include",
       cache: "no-cache",
+      body: JSON.stringify({ id: values.id, data: values }),
     })
-      .then((res) => {
-        openNotification("success");
-        fetchNotices();
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status) {
+          openNotification("success", t["Notice Updated"]);
+          fetchNotices();
+          setOpen(false);
+        } else {
+          console.error(data.message);
+          openNotification("error", t["Error Updating Notice"]);
+        }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error");
+        openNotification("error", t["Error Updating Notice"]);
       })
       .finally(() => {
-        setOpen(false);
         setProcessing(false);
       });
   };
@@ -65,23 +81,22 @@ export default function NoticeForm({
       initialValues={mode === "edit" ? notice : null}
       style={{ width: "90%", maxWidth: "600px", margin: "auto" }}
     >
-      <Form.Item label="Heading" name="heading" required>
+      <Form.Item label={t["Heading"]} name="heading" required>
         <Input type="text" />
       </Form.Item>
-      <Form.Item label="File URL" name="url" required>
+      <Form.Item label={t["File URL"]} name="url" required>
         <Input type="text" />
       </Form.Item>
       <Form.Item
-        label="Notice Type"
+        label={t["Notice Type"]}
         name="type"
         required
         style={{ marginBottom: "10px" }}
       >
         <Select
-          placeholder="Select Notice Type"
           options={[
-            { label: "Allocation", value: "allocation" },
-            { label: "Something Else", value: "else" },
+            { label: t["Allocation"], value: "allocation" },
+            { label: t["Something Else"], value: "else" },
           ]}
         />
       </Form.Item>
@@ -96,9 +111,9 @@ export default function NoticeForm({
             <Form.Item
               name="type_text"
               required
-              wrapperCol={{ xs: { span: 24 }, sm: { span: 16, offset: 8 } }}
+              wrapperCol={{ span: 16, offset: 8 }}
             >
-              <Input type="text" placeholder="please specify" />
+              <Input type="text" placeholder={t["Please Specify"]} />
             </Form.Item>
           ) : (
             <Form.List
@@ -119,22 +134,13 @@ export default function NoticeForm({
                     <Form.Item
                       {...(index === 0
                         ? {
-                            labelCol: {
-                              xs: { span: 24 },
-                              sm: { span: 8 },
-                            },
-                            wrapperCol: {
-                              xs: { span: 24 },
-                              sm: { span: 16 },
-                            },
+                            labelCol: { span: 8 },
+                            wrapperCol: { span: 16 },
                           }
                         : {
-                            wrapperCol: {
-                              xs: { span: 24 },
-                              sm: { span: 16, offset: 8 },
-                            },
+                            wrapperCol: { span: 16, offset: 8 },
                           })}
-                      label={index === 0 ? "Pno No" : ""}
+                      label={index === 0 ? t["PNOs"] : ""}
                       required={false}
                       key={field.key}
                       style={{ marginBottom: "10px" }}
@@ -150,7 +156,7 @@ export default function NoticeForm({
                         noStyle
                       >
                         <Input
-                          placeholder="Enter Pno"
+                          placeholder={t["Enter PNO"]}
                           style={{
                             width: "85%",
                           }}
@@ -164,11 +170,7 @@ export default function NoticeForm({
                       ) : null}
                     </Form.Item>
                   ))}
-                  <Form.Item
-                    wrapperCol={{
-                      sm: { offset: 8 },
-                    }}
-                  >
+                  <Form.Item wrapperCol={{ offset: 8 }}>
                     <Button
                       type="dashed"
                       onClick={() => add()}
@@ -177,7 +179,7 @@ export default function NoticeForm({
                       }}
                       icon={<PlusOutlined />}
                     >
-                      Add Pno No
+                      {t["Add PNO"]}
                     </Button>
                     <Form.ErrorList errors={errors} />
                   </Form.Item>
@@ -195,7 +197,7 @@ export default function NoticeForm({
                 indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
               />
             )}
-            Submit
+            {t["Submit"]}
           </Button>
         </div>
       </Form.Item>

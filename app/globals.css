@@ -4,6 +4,13 @@ body {
   margin: 0;
 }
 
+@font-face {
+  font-family: "Mangal";
+  src: url("../fonts/MANGAL.TTF") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 .dynamic-delete-button {
   position: relative;
   top: 4px;
@@ -19,4 +26,28 @@ body {
 .dynamic-delete-button[disabled] {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.mangal {
+  font-family: "Mangal" !important;
+}
+
+.mobile {
+  display: none;
+}
+
+.desktop {
+  display: flex;
+}
+
+@media screen and (max-width: 767px) {
+  .desktop {
+    display: none;
+  }
+  .mobile {
+    display: block;
+  }
+  .padding {
+    padding-top: 10px;
+  }
 }

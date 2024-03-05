@@ -1,90 +1,75 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Typography } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { makeStyles } from "@mui/styles";
-import { useTranslation } from "next-i18next";
-
-const useStyles = makeStyles(() => ({
-  root: {
-    maxHeight: "100%", // Set height to 100% of the parent container
-    width: "95%", // Set the width of the container
-    margin: "0 auto", // Center the container horizontally
-  },
-  row: {
-    width: "100%", // Allow rows to occupy the full width
-    maxWidth: "100%",
-  },
-}));
+import { Typography, List } from "antd";
+import { langState } from "@/utils/atom";
+import { useRecoilValue } from "recoil";
+import { AuditOutlined, CreditCardOutlined } from "@ant-design/icons";
+import text from "@/text.json";
 
 export default function Home() {
   const [notices, setNotices] = useState([]);
-  const { t } = useTranslation();
+  const lang = useRecoilValue(langState);
+  const t = text[lang];
 
   useEffect(() => {
-    fetch(`${process.env.BACKEND_URL}/getNotices`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/all`, {
       method: "GET",
       credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        setNotices(data);
+        if (data.status) {
+          setNotices(data.message);
+        } else {
+          console.error(data.message);
+        }
       })
       .catch((err) => console.error(err));
   }, []);
 
-  const classes = useStyles();
-
-  const columns = [
-    {
-      field: "title",
-      headerName: t("Title"),
-      flex: 1,
-    },
-    {
-      field: "url",
-      headerName: t("URL"),
-      flex: 1,
-      renderCell: (params) => <a href={`${params.url}`} />,
-    },
-    {
-      field: "type",
-      headerName: t("Notice Type"),
-      flex: 1,
-    },
-    {
-      field: "date",
-      headerName: t("Release Date"),
-      flex: 1,
-    },
-  ];
-
   return (
-    <div className={classes.root}>
-      <Typography variant="h4" component="h4" align="center" m={5}>
-        {t("Notices")}
-      </Typography>
-      <DataGrid
-        rows={notices}
-        columns={columns}
-        getRowId={(row) => row.uid}
-        showColumnVerticalBorder
-        showCellVerticalBorder
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 10,
-            },
+    <div>
+      <Typography.Title level={1} style={{ textAlign: "center" }}>
+        {t["Notices"]}
+      </Typography.Title>
+      <List
+        itemLayout="vertical"
+        size="large"
+        pagination={{
+          onChange: (page) => {
+            console.log(page);
           },
+          pageSize: 3,
         }}
-        pageSizeOptions={[5]}
-        disableRowSelectionOnClick
-        autoHeight
-        getRowClassName={() => classes.row}
-        slots={{ toolbar: GridToolbar }}
-        disableExtendRowFullWidth
+        dataSource={notices}
+        renderItem={(notice) => (
+          <List.Item
+            key={item.heading}
+            extra={
+              <img
+                src={`https://docs.google.com/viewer?url=${notice.url}&pid=explorer&efh=false&a=v&chrome=false&embedded=true`}
+              />
+            }
+          >
+            <List.Item.Meta
+              avatar={
+                notice.type === "allotment" ? (
+                  <AuditOutlined />
+                ) : (
+                  <CreditCardOutlined />
+                )
+              }
+              title={
+                <a target="_blank" href={notice.url}>
+                  {notice.heading}
+                </a>
+              }
+              description={notice.date}
+            />
+            {notice.type}
+          </List.Item>
+        )}
       />
     </div>
   );

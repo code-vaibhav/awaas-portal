@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Input,
   Button,
@@ -14,25 +14,31 @@ import {
 } from "antd";
 import { Typography } from "@mui/material";
 import { LoadingOutlined } from "@ant-design/icons";
+import { langState } from "@/utils/atom";
+import { useRecoilValue } from "recoil";
+import text from "@/text.json";
+import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import WithAuthorization from "@/components/WithAuth";
+import * as XLSX from "xlsx";
 
-export default function AddApplication() {
+const AddRecords = () => {
   const [processing, setProcessing] = useState(false);
-  const message = {
-    success: "Applications Added Successfully",
-    error: "Error in adding applications, please try again",
-  };
+  const lang = useRecoilValue(langState);
+  const t = text[lang];
+  const form = useRef();
 
   const [api, contextHolder] = notification.useNotification();
-  const openNotification = (type) => {
+  const openNotification = (type, message) => {
     api[type]({
-      message: message[type],
+      message: message,
       placement: "topRight",
     });
   };
 
-  const addApplication = (data) => {
+  const addRecords = (data) => {
     setProcessing(true);
 
+    let jsonData;
     if (data.method === "sheet") {
       const reader = new FileReader();
 
@@ -46,59 +52,47 @@ export default function AddApplication() {
         const sheet = workbook.Sheets[sheetName];
 
         // Parse the sheet data into a JSON object
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
-        console.log("Parsed Excel Data:", jsonData);
-
-        fetch(`${process.env.BACKEND_URL}/addApplications`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(jsonData),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log(data);
-            openNotification("success");
-          })
-          .catch((err) => {
-            console.error(err);
-            openNotification("error");
-          })
-          .finally(() => setProcessing(false));
+        jsonData = XLSX.utils.sheet_to_json(sheet).map((record) => ({
+          name: record[t["Name"]],
+          rank: record[t["Rank"]],
+          pno: record[t["PNO"]],
+          badgeNumber: record[t["Badge No"]],
+          mobile: record[t["Mobile No"]],
+          registrationNumber: record[`Registration No`],
+          applicationDate: record[`Application Date`],
+        }));
       };
 
       reader.readAsArrayBuffer(data.excel_sheet.originFileObj);
     } else {
-      const jsonData = Array.from({ length: getFieldValue("count") ?? 0 }).map(
-        (_, idx) => ({
-          Name: data[`name_${idx}`],
-          Rank: data[`rank_${idx}`],
-          PNO_No: data[`pno_${idx}`],
-          Application_Date: data[`date_${idx}`],
-        })
-      );
+      jsonData = data.records;
+    }
 
-      fetch(`${process.env.BACKEND_URL}/addApplications`, {
+    console.log(jsonData);
+
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/create/many`,
+      {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(jsonData),
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status) {
+          openNotification("success", t["Records Added"]);
+          form.current.resetFields();
+        } else {
+          console.error(data.message);
+          openNotification("error", t["Error Adding Records"]);
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          openNotification("success");
-        })
-        .catch((err) => {
-          console.error(err);
-          openNotification("error");
-        })
-        .finally(() => setProcessing(false));
-    }
+      .catch((err) => {
+        console.error(err);
+        openNotification("error", t["Error Adding Records"]);
+      })
+      .finally(() => setProcessing(false));
   };
 
   const dummyRequest = ({ file, onSuccess }) => {
@@ -112,14 +106,13 @@ export default function AddApplication() {
     <div>
       {contextHolder}
       <Typography variant="h4" component="h4" align="center" m={5}>
-        Add Application
+        {t["Add Records"]}
       </Typography>
       <Form
-        name="add_application"
-        onFinish={addApplication}
+        ref={form}
+        name="add_records"
+        onFinish={addRecords}
         autoComplete="off"
-        style={{ color: "#fff" }}
-        labelWrap
       >
         <Space
           style={{
@@ -130,7 +123,7 @@ export default function AddApplication() {
           }}
         >
           <Form.Item
-            label="Input Method"
+            label={t["Input Method"]}
             name="method"
             rules={[
               {
@@ -139,10 +132,10 @@ export default function AddApplication() {
             ]}
           >
             <Select
-              placeholder="Select Method"
+              placeholder={t["Select Method"]}
               options={[
-                { label: "Excel Sheet", value: "sheet" },
-                { label: "Manual Input", value: "manual" },
+                { label: t["Excel Sheet"], value: "sheet" },
+                { label: t["Manual Input"], value: "manual" },
               ]}
             />
           </Form.Item>
@@ -152,7 +145,7 @@ export default function AddApplication() {
             }
           >
             {({ getFieldValue }) =>
-              getFieldValue("method") && (
+              getFieldValue("method") === "sheet" && (
                 <Space
                   style={{
                     display: "flex",
@@ -161,37 +154,26 @@ export default function AddApplication() {
                     width: "100%",
                   }}
                 >
-                  {getFieldValue("method") === "manual" ? (
-                    <Form.Item
-                      label="Enter Application Count"
-                      name="count"
-                      required
-                      style={{ minWidth: "max-content" }}
+                  <Form.Item
+                    name="excel_sheet"
+                    required
+                    style={{ minWidth: "max-content" }}
+                  >
+                    <Upload
+                      name="logo"
+                      customRequest={dummyRequest}
+                      beforeUpload={beforeUpload}
+                      listType="picture"
                     >
-                      <Input type="number" placeholder="Application Count" />
-                    </Form.Item>
-                  ) : (
-                    <Form.Item
-                      name="excel_sheet"
-                      required
-                      style={{ minWidth: "max-content" }}
-                    >
-                      <Upload
-                        name="logo"
-                        customRequest={dummyRequest}
-                        beforeUpload={beforeUpload}
-                        listType="picture"
+                      <Button
+                        variant="contained"
+                        component="span"
+                        disabled={processing}
                       >
-                        <Button
-                          variant="contained"
-                          component="span"
-                          disabled={processing}
-                        >
-                          Select Excel Sheet
-                        </Button>
-                      </Upload>
-                    </Form.Item>
-                  )}
+                        {t["Select Excel Sheet"]}
+                      </Button>
+                    </Upload>
+                  </Form.Item>
                   <Button
                     type="primary"
                     htmlType="submit"
@@ -204,7 +186,7 @@ export default function AddApplication() {
                         }
                       />
                     )}
-                    Submit
+                    {t["Submit"]}
                   </Button>
                 </Space>
               )
@@ -213,61 +195,169 @@ export default function AddApplication() {
         </Space>
         <Form.Item
           shouldUpdate={(prevValues, currentValues) =>
-            prevValues.count !== currentValues.count ||
             prevValues.method !== currentValues.method
           }
-          noStyle
         >
           {({ getFieldValue }) =>
-            getFieldValue("method") === "manual" &&
-            Array.from({ length: getFieldValue("count") ?? 0 }).map(
-              (_, idx) => (
-                <Space
-                  key={idx}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-evenly",
-                    alignItems: "flex-start",
-                    width: "100%",
-                  }}
-                >
-                  <Form.Item label="PNO No" name={`pno_${idx}`} required>
-                    <Input id="pno_no" type="text" placeholder="Enter PNO No" />
-                  </Form.Item>
-                  <Form.Item label="Name" name={`name_${idx}`} required>
-                    <Input id="name" type="text" placeholder="Enter Name" />
-                  </Form.Item>
-                  <Form.Item label="Rank" name={`rank_${idx}`} required>
-                    <Input id="rank" type="text" placeholder="Enter Rank" />
-                  </Form.Item>
-                  <Form.Item label="Badge No" name={`badge_${idx}`} required>
-                    <Input
-                      id="badge"
-                      type="text"
-                      placeholder="Enter Badge No"
-                    />
-                  </Form.Item>
-                  <Form.Item label="Mobile No" name={`mobile_${idx}`}>
-                    <Input
-                      id="mobile"
-                      type="number"
-                      placeholder="Enter Mobile No"
-                    />
-                  </Form.Item>
-                  <Form.Item
-                    label="Application Date"
-                    name={`date_${idx}`}
-                    required
-                    style={{ minWidth: "max-content" }}
-                  >
-                    <DatePicker />
-                  </Form.Item>
-                </Space>
-              )
+            getFieldValue("method") === "manual" && (
+              <Form.List
+                name="records"
+                rules={[
+                  {
+                    validator: async (_, records) => {
+                      if (!records) {
+                        return Promise.reject(
+                          new Error("Enter at least 1 record")
+                        );
+                      }
+                    },
+                  },
+                ]}
+              >
+                {(fields, { add, remove }, { errors }) => (
+                  <>
+                    <Space
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "flex-start",
+                        position: "absolute",
+                        right: "20%",
+                        bottom: "100%",
+                        width: "max-content",
+                      }}
+                    >
+                      <Form.Item>
+                        <Button
+                          type="dashed"
+                          onClick={() => add()}
+                          icon={<PlusOutlined />}
+                        >
+                          {t["Add Record"]}
+                        </Button>
+                        <Form.ErrorList errors={errors} />
+                      </Form.Item>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        disabled={processing}
+                      >
+                        {processing && (
+                          <Spin
+                            indicator={
+                              <LoadingOutlined style={{ fontSize: 24 }} spin />
+                            }
+                          />
+                        )}
+                        {t["Submit"]}
+                      </Button>
+                    </Space>
+
+                    {fields.map(({ key, name, ...restField }) => (
+                      <Space
+                        key={key}
+                        direction="vertical"
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-evenly",
+                          alignItems: "center",
+                          width: "100%",
+                        }}
+                      >
+                        <Space>
+                          <Form.Item
+                            {...restField}
+                            label={t["Registration No"]}
+                            name={[name, "registrationNumber"]}
+                            required
+                          >
+                            <Input lang={lang} type="number" />
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            label={t["Name"]}
+                            name={[name, "name"]}
+                            required
+                          >
+                            <Input lang={lang} type="text" />
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            label={t["Application Date"]}
+                            name={[name, "applicationDate"]}
+                            required
+                          >
+                            <DatePicker
+                              disabledDate={(current) =>
+                                current &&
+                                current.valueOf() >
+                                  new Date().setHours(0, 0, 0, 0).valueOf()
+                              }
+                            />
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            label={t["Rank"]}
+                            name={[name, "rank"]}
+                            required
+                          >
+                            <Select
+                              placeholder={t["Select Rank"]}
+                              options={[
+                                { label: t["Inspector"], value: "inspector" },
+                                { label: t["SI"], value: "si" },
+                                { label: t["Stenos"], value: "stenos" },
+                                { label: t["Constable"], value: "manual" },
+                                { label: t["HC"], value: "hc" },
+                                {
+                                  label: t["4th Class Follower"],
+                                  value: "follower",
+                                },
+                              ]}
+                            />
+                          </Form.Item>
+                        </Space>
+                        <Space align="baseline">
+                          <Form.Item
+                            {...restField}
+                            label={t["PNO"]}
+                            name={[name, "pno"]}
+                          >
+                            <Input type="number" />
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            label={t["Badge No"]}
+                            name={[name, "badgeNumber"]}
+                          >
+                            <Input type="number" />
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            label={t["Mobile No"]}
+                            name={[name, "mobile"]}
+                          >
+                            <Input type="number" />
+                          </Form.Item>
+
+                          {fields.length > 1 ? (
+                            <MinusCircleOutlined
+                              className="dynamic-delete-button"
+                              onClick={() => remove(name)}
+                            />
+                          ) : null}
+                        </Space>
+                      </Space>
+                    ))}
+                  </>
+                )}
+              </Form.List>
             )
           }
         </Form.Item>
       </Form>
     </div>
   );
-}
+};
+
+export default () => <WithAuthorization Children={AddRecords} isRoot={false} />;
