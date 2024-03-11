@@ -1,9 +1,9 @@
 "use client";
 
-import { Layout, Menu, Flex, Typography, Space } from "antd";
+import { Layout, Menu, Flex, Typography, Space, Button } from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { langState } from "@/utils/atom";
 import text from "@/text.json";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -16,12 +16,30 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import FolderIcon from "@mui/icons-material/Folder";
 import NoteIcon from "@mui/icons-material/Note";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import { auth, logOut } from "@/utils/auth";
+import { onAuthStateChanged } from "firebase/auth";
+import { authState } from "@/utils/atom";
 
 const { Sider, Content, Header } = Layout;
 
 export default function DashboardWrapper({ children }) {
   const pathname = usePathname();
   const t = text[useRecoilValue(langState)];
+  const setAuth = useSetRecoilState(authState);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      user.getIdToken().then((IdToken) => {
+        setAuth({
+          user: user.email,
+          token: IdToken,
+          role: user?.customClaims?.role || "admin",
+        });
+      });
+    } else {
+      setAuth(null);
+    }
+  });
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -99,7 +117,6 @@ export default function DashboardWrapper({ children }) {
             }
             theme="dark"
             style={{
-              height: "100%",
               borderRight: 0,
               padding: "0 10px",
             }}
@@ -130,6 +147,10 @@ export default function DashboardWrapper({ children }) {
                 key: "5",
                 label: <Link href="/admin/users">{t["Users"]}</Link>,
                 icon: <GroupIcon />,
+              },
+              {
+                key: "6",
+                label: <Button onClick={logOut}>Logout</Button>,
               },
             ]}
           />

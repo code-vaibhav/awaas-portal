@@ -3,43 +3,24 @@
 import { useState, useEffect } from "react";
 import { Typography, Button } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Popconfirm, notification, Space, Input, Form } from "antd";
+import { Popconfirm, Space, Input, Form } from "antd";
 import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import text from "@/text.json";
 import WithAuthorization from "@/components/WithAuth";
+import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 
-const useStyles = makeStyles(() => ({
-  root: {
-    maxHeight: "100%", // Set height to 100% of the parent container
-    width: "95%", // Set the width of the container
-    margin: "0 auto", // Center the container horizontally
-  },
-  row: {
-    width: "100%", // Allow rows to occupy the full width
-    maxWidth: "100%",
-  },
-}));
-
-const Users = ({ role }) => {
+const Users = () => {
   const [users, setUsers] = useState([]);
-  const [api, contextHolder] = notification.useNotification();
   const [processing, setProcessing] = useState(false);
   const lang = useRecoilValue(langState);
   const t = text[lang];
 
-  const openNotification = (type, message) => {
-    api[type]({
-      message: message,
-      placement: "topRight",
-    });
-  };
-
   const fetchUsers = () => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/magaer/all`, {
       method: "GET",
+      credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {
@@ -56,23 +37,24 @@ const Users = ({ role }) => {
 
   const deleteUser = (id) => {
     setProcessing(id);
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/delete`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/manager/delete`, {
       method: "DELETE",
       body: { id },
+      credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
-          openNotification("success", t["User Deleted"]);
+          SuccessMessage(t["User Deleted"]);
           fetchRecords();
         } else {
           console.error(data.message);
-          openNotification("error", t["Error Deleting User"]);
+          ErrorMessage(t["Error Deleting User"]);
         }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error", t["Error Deleting User"]);
+        ErrorMessage(t["Error Deleting User"]);
       })
       .finally(() => setProcessing(false));
   };
@@ -82,27 +64,24 @@ const Users = ({ role }) => {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/manager/register`, {
       method: "POST",
       credentials: "include",
-      cache: "no-cache",
       body: values,
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
-          openNotification("success", t["User Added"]);
+          SuccessMessage(t["User Added"]);
           fetchUsers();
         } else {
           console.error(data.message);
-          openNotification("error", t["Error Adding User"]);
+          ErrorMessage(t["Error Adding User"]);
         }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error", t["Error Adding User"]);
+        ErrorMessage(t["Error Adding User"]);
       })
       .finally(() => setProcessing(false));
   };
-
-  const classes = useStyles();
 
   const columns = [
     {
@@ -148,8 +127,7 @@ const Users = ({ role }) => {
   ];
 
   return (
-    <div className={classes.root}>
-      {contextHolder}
+    <div className="root">
       <Typography variant="h4" component="h4" align="center" m={5}>
         {t["Users"]}
       </Typography>
@@ -195,7 +173,7 @@ const Users = ({ role }) => {
         pageSizeOptions={[5]}
         disableRowSelectionOnClick
         autoHeight
-        getRowClassName={() => classes.row}
+        getRowClassName={() => "row"}
         slots={{ toolbar: GridToolbar }}
         disableExtendRowFullWidth
       />

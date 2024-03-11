@@ -3,12 +3,12 @@ import { Modal, Form, Input, Select, Button, DatePicker } from "antd";
 import { useRecoilValue } from "recoil";
 import { langState } from "@/utils/atom";
 import text from "@/text.json";
+import { SuccessMessage, ErrorMessage } from "./Notification";
 
 export default function EditRecord({
   record,
   open,
   setOpen,
-  openNotification,
   fetchApplications,
 }) {
   const [processing, setProcessing] = useState(false);
@@ -20,18 +20,17 @@ export default function EditRecord({
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/update`, {
       method: "POST",
       credentials: "include",
-      cache: "no-cache",
-      body: { id: record.id, data: values },
+      body: JSON.stringify({ id: record.id, data: values }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
-          openNotification("success", t["Record Updated"]);
+          SuccessMessage(t["Record Updated"]);
           fetchApplications();
           setOpen(false);
         } else {
           console.error(data.message);
-          openNotification("error", t["Error Updating Record"]);
+          ErrorMessage(t["Error Updating Record"]);
         }
       })
       .catch((err) => {
@@ -67,7 +66,13 @@ export default function EditRecord({
           name="applicationDate"
           required
         >
-          <DatePicker />
+          <DatePicker
+            disabledDate={(current) =>
+              current &&
+              current.valueOf() > new Date().setHours(0, 0, 0, 0).valueOf()
+            }
+            format="DD/MM/YYYY"
+          />
         </Form.Item>
         <Form.Item label={t["Rank"]} name="rank" required>
           <Select
@@ -94,7 +99,6 @@ export default function EditRecord({
         <Form.Item label={t["Mobile No"]} name="mobile">
           <Input type="number" />
         </Form.Item>
-
         <Form.Item>
           <Button type="primary" htmlType="submit" disabled={processing}>
             {processing && (

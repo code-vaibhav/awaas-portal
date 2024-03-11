@@ -1,28 +1,29 @@
-// WithAuthorization.js
-import { useEffect, useState } from "react";
-import { getCurrentUser, getRole } from "@/utils/auth";
+import { useEffect } from "react";
+import { useRecoilValue } from "recoil";
+import { authState } from "@/utils/atom";
+import { useRouter } from "next/navigation";
+import { WarningMessage } from "./Notification";
+import { langState } from "@/utils/atom";
+import text from "@/text.json";
+import { Spin } from "antd";
 
 const WithAuthorization = ({ Children, isRoot }) => {
-  const [role, setRole] = useState("");
+  const auth = useRecoilValue(authState);
+  const router = useRouter();
+  const t = text[useRecoilValue(langState)];
 
   useEffect(() => {
-    const user = getCurrentUser();
-    console.log(user);
-
-    if (!user) {
-      // Redirect to login if the user is not authenticated
-      window.location.href = `/admin`;
-      return;
+    console.log(auth);
+    if (!auth) {
+      router.push("/admin");
     }
 
-    if (isRoot && getRole() !== "root") {
-      console.error("You dont have access to this page");
+    if (isRoot && auth.role !== "admin") {
+      WarningMessage(t["Access Denied"]);
     }
+  }, [auth]);
 
-    setRole(getRole());
-  }, []);
-
-  return <Children role={role} />;
+  return auth ? <Children /> : <Spin spinning={true} fullscreen />;
 };
 
 export default WithAuthorization;

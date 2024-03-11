@@ -55,7 +55,8 @@
     "Something Else": "Something Else",
     "Please Specify": "Please Specify",
     "Heading": "Heading",
-    "File URL": "File URL",
+    "Select File": "Select File",
+    "Upload File": "Upload File",
     "Notice Added": "Notice Successfully Added",
     "Error Adding Notice": "Error in adding notice, please try again",
     "Notice Updated": "Notice Successfully Updated",
@@ -71,7 +72,8 @@
     "User Added": "User Successfully Added",
     "Error Adding User": "Error in adding user, please try again",
     "User Deleted": "User Successfully Deleted",
-    "Error Deleting User": "Error in deleting user, please try again"
+    "Error Deleting User": "Error in deleting user, please try again",
+    "Access Denied": "You dont have access to this page"
   },
   "hi": {
     "Awaas Portal": "आवास पोर्टल",

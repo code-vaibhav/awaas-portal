@@ -3,44 +3,24 @@
 import { useState, useEffect } from "react";
 import { Typography, Button } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { Popconfirm, notification, Space, Modal } from "antd";
+import { Popconfirm, Space, Modal } from "antd";
 import NoticeForm from "@/components/NoticeForm";
 import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import text from "@/text.json";
 import WithAuthorization from "@/components/WithAuth";
+import { ErrorMessage, SuccessMessage } from "@/components/Notification";
 
-const useStyles = makeStyles(() => ({
-  root: {
-    maxHeight: "100%", // Set height to 100% of the parent container
-    width: "95%", // Set the width of the container
-    margin: "0 auto", // Center the container horizontally
-  },
-  row: {
-    width: "100%", // Allow rows to occupy the full width
-    maxWidth: "100%",
-  },
-}));
-
-const Notices = ({ role }) => {
+const Notices = () => {
   const [notices, setNotices] = useState([]);
-  const [api, contextHolder] = notification.useNotification();
   const [open, setOpen] = useState(false);
   const [notice, setNotice] = useState();
   const t = text[useRecoilValue(langState)];
 
-  const openNotification = (type, message) => {
-    api[type]({
-      message: message,
-      placement: "topRight",
-    });
-  };
-
   const fetchNotices = () => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notiification/all`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/all`, {
       method: "GET",
       credentials: "include",
     })
@@ -66,20 +46,18 @@ const Notices = ({ role }) => {
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
-          openNotification("success", t["Notice Deleted"]);
+          SuccessMessage(t["Notice Deleted"]);
           fetchNotices();
         } else {
           console.error(data.message);
-          openNotification("error", t["Error Deleting Notice"]);
+          ErrorMessage(t["Error Deleting Notice"]);
         }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error", t["Error Deleting Notice"]);
+        ErrorMessage(t["Error Deleting Notice"]);
       });
   };
-
-  const classes = useStyles();
 
   const columns = [
     {
@@ -141,8 +119,7 @@ const Notices = ({ role }) => {
   ];
 
   return (
-    <div className={classes.root}>
-      {contextHolder}
+    <div className="root">
       <Typography variant="h4" component="h4" align="center" m={5}>
         {t["Notices"]}
       </Typography>
@@ -156,7 +133,6 @@ const Notices = ({ role }) => {
           mode="edit"
           notice={notice}
           setOpen={setOpen}
-          openNotification={openNotification}
           fetchNotices={fetchNotices}
         />
       </Modal>
@@ -176,7 +152,7 @@ const Notices = ({ role }) => {
         pageSizeOptions={[5]}
         disableRowSelectionOnClick
         autoHeight
-        getRowClassName={() => classes.row}
+        getRowClassName={() => "row"}
         slots={{ toolbar: GridToolbar }}
         disableExtendRowFullWidth
       />

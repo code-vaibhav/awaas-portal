@@ -7,7 +7,6 @@ import {
   Space,
   Form,
   Upload,
-  notification,
   Spin,
   Select,
   DatePicker,
@@ -20,20 +19,13 @@ import text from "@/text.json";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import WithAuthorization from "@/components/WithAuth";
 import * as XLSX from "xlsx";
+import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 
 const AddRecords = () => {
   const [processing, setProcessing] = useState(false);
   const lang = useRecoilValue(langState);
   const t = text[lang];
   const form = useRef();
-
-  const [api, contextHolder] = notification.useNotification();
-  const openNotification = (type, message) => {
-    api[type]({
-      message: message,
-      placement: "topRight",
-    });
-  };
 
   const addRecords = (data) => {
     setProcessing(true);
@@ -68,29 +60,27 @@ const AddRecords = () => {
       jsonData = data.records;
     }
 
-    console.log(jsonData);
-
     fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/create/many`,
       {
         method: "POST",
         credentials: "include",
-        body: JSON.stringify(jsonData),
+        body: JSON.stringify({ applications: jsonData }),
       }
     )
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
-          openNotification("success", t["Records Added"]);
+          SuccessMessage(t["Records Added"]);
           form.current.resetFields();
         } else {
           console.error(data.message);
-          openNotification("error", t["Error Adding Records"]);
+          ErrorMessage(t["Error Adding Records"]);
         }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error", t["Error Adding Records"]);
+        ErrorMessage(t["Error Adding Records"]);
       })
       .finally(() => setProcessing(false));
   };
@@ -104,7 +94,6 @@ const AddRecords = () => {
 
   return (
     <div>
-      {contextHolder}
       <Typography variant="h4" component="h4" align="center" m={5}>
         {t["Add Records"]}
       </Typography>
@@ -158,6 +147,7 @@ const AddRecords = () => {
                     name="excel_sheet"
                     required
                     style={{ minWidth: "max-content" }}
+                    valuePropName="file"
                   >
                     <Upload
                       name="logo"
@@ -293,6 +283,7 @@ const AddRecords = () => {
                                 current.valueOf() >
                                   new Date().setHours(0, 0, 0, 0).valueOf()
                               }
+                              format="DD/MM/YYYY"
                             />
                           </Form.Item>
                           <Form.Item

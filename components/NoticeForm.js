@@ -1,42 +1,56 @@
 import { useState } from "react";
-import { Form, Input, Select, Button } from "antd";
+import { Form, Input, Select, Button, Spin, Upload } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useRecoilValue } from "recoil";
 import { langState } from "@/utils/atom";
 import text from "@/text.json";
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
+import { SuccessMessage, ErrorMessage } from "./Notification";
 
-export default function NoticeForm({
-  mode,
-  notice,
-  setOpen,
-  openNotification,
-  fetchNotices,
-}) {
+export default function NoticeForm({ mode, notice, setOpen, fetchNotices }) {
   const [processing, setProcessing] = useState(false);
   const t = text[useRecoilValue(langState)];
 
   const addNotice = (values) => {
     console.log(values);
     setProcessing(true);
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/add`, {
-      method: "POST",
-      credentials: "include",
-      cache: "no-cache",
-      body: JSON.stringify(values),
-    })
+
+    const formData = new FormData();
+    formData.append("file", values.file);
+    formData.append("heading", values.heading);
+    formData.append(
+      "type",
+      values.type === "allocation" ? values.type : values.type_text
+    );
+    if (values.type === "allocation")
+      formData.append("pnos", JSON.stringify(values.pnos));
+
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/${
+        values.type === "allocation" ? "allot" : "general"
+      }`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": `multipart/form-data; boundary=${formData._boundary}`,
+        },
+        credentials: "include",
+        body: formData,
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
-          openNotification("success", t["Notice Added"]);
+          SuccessMessage(t["Notice Added"]);
           setOpen(false);
         } else {
           console.error(data.message);
-          openNotification("error", t["Error Adding Notice"]);
+          ErrorMessage(t["Error Adding Notice"]);
         }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error", t["Error Adding Notice"]);
+        ErrorMessage(t["Error Adding Notice"]);
       })
       .finally(() => {
         setProcessing(false);
@@ -47,29 +61,35 @@ export default function NoticeForm({
     setProcessing(true);
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/update`, {
       method: "POST",
-      credentials: "include",
-      cache: "no-cache",
+      // credentials: "include",
       body: JSON.stringify({ id: values.id, data: values }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
-          openNotification("success", t["Notice Updated"]);
+          SuccessMessage(t["Notice Updated"]);
           fetchNotices();
           setOpen(false);
         } else {
           console.error(data.message);
-          openNotification("error", t["Error Updating Notice"]);
+          ErrorMessage(t["Error Updating Notice"]);
         }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error", t["Error Updating Notice"]);
+        ErrorMessage(t["Error Updating Notice"]);
       })
       .finally(() => {
         setProcessing(false);
       });
   };
+
+  const dummyRequest = ({ file, onSuccess }) => {
+    setTimeout(() => {
+      onSuccess("ok");
+    }, 0);
+  };
+  const beforeUpload = () => false;
 
   return (
     <Form
@@ -84,8 +104,24 @@ export default function NoticeForm({
       <Form.Item label={t["Heading"]} name="heading" required>
         <Input type="text" />
       </Form.Item>
-      <Form.Item label={t["File URL"]} name="url" required>
-        <Input type="text" />
+      <Form.Item
+        valuePropName="file"
+        label={t["Upload File"]}
+        name="file"
+        required
+      >
+        <Upload
+          name="logo"
+          customRequest={dummyRequest}
+          beforeUpload={beforeUpload}
+          listType="picture"
+          accept=".pdf"
+          valuePropName="file"
+        >
+          <Button variant="contained" component="span" disabled={processing}>
+            {t["Select File"]}
+          </Button>
+        </Upload>
       </Form.Item>
       <Form.Item
         label={t["Notice Type"]}

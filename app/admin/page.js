@@ -3,20 +3,20 @@
 import { useEffect } from "react";
 import { Button, Form, Input, Typography } from "antd";
 import { useRouter } from "next/navigation";
-import { logIn } from "../../utils/auth";
-import { langState } from "../../utils/atom";
+import { logIn } from "@/utils/auth";
+import { authState, langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import text from "@/text.json";
-import { getUser } from "../../utils/auth";
 
 export default function Login() {
   const router = useRouter();
   const lang = useRecoilValue(langState);
+  const auth = useRecoilValue(authState);
   const t = text[lang];
 
   useEffect(() => {
-    if (getUser) {
-      router.push("/admin/records/add");
+    if (auth) {
+      router.push("/admin/records");
     }
   }, []);
 

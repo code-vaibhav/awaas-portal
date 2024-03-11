@@ -3,43 +3,25 @@
 import { useState, useEffect } from "react";
 import { Typography, Button, Chip } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { Popconfirm, notification, Space, Input } from "antd";
+import { Popconfirm, Space, Input } from "antd";
 import EditRecord from "@/components/EditRecord";
 import { langState } from "@/utils/atom";
-import { useRecoilValue } from "recoil";
 import text from "@/text.json";
 import WithAuthorization from "@/components/WithAuth";
+import { useRecoilValue } from "recoil";
+import { authState } from "@/utils/atom";
+import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 
-const useStyles = makeStyles(() => ({
-  root: {
-    maxHeight: "100%", // Set height to 100% of the parent container
-    width: "95%", // Set the width of the container
-    margin: "0 auto", // Center the container horizontally
-  },
-  row: {
-    width: "100%", // Allow rows to occupy the full width
-    maxWidth: "100%",
-  },
-}));
-
-const Records = ({ role }) => {
+const Records = () => {
   const [records, setRecords] = useState([]);
   const [record, setRecord] = useState();
-  const [api, contextHolder] = notification.useNotification();
   const [open, setOpen] = useState(false);
   const [id, setId] = useState("");
   const [processing, setProcessing] = useState(false);
   const t = text[useRecoilValue(langState)];
-
-  const openNotification = (type, message) => {
-    api[type]({
-      message: message,
-      placement: "topRight",
-    });
-  };
+  const auth = useRecoilValue(authState);
 
   const fetchRecords = () => {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/all`, {
@@ -69,21 +51,19 @@ const Records = ({ role }) => {
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
-          openNotification("success", t["Record Deleted"]);
+          SuccessMessage(t["Record Deleted"]);
           fetchRecords();
         } else {
           console.error(data.message);
-          openNotification("error", t["Error Deleting Record"]);
+          ErrorMessage(t["Error Deleting Record"]);
         }
       })
       .catch((err) => {
         console.error(err);
-        openNotification("error", t["Error Deleting Record"]);
+        ErrorMessage(t["Error Deleting Record"]);
       })
       .finally(() => setProcessing(false));
   };
-
-  const classes = useStyles();
 
   const columns = [
     {
@@ -154,7 +134,7 @@ const Records = ({ role }) => {
           >
             {t["Edit"]}
           </Button>
-          {role === "root" && (
+          {auth.role === "admin" && (
             <Popconfirm
               placement="topLeft"
               title={t[`Are you sure to delete this record?`]}
@@ -186,8 +166,7 @@ const Records = ({ role }) => {
   ];
 
   return (
-    <div className={classes.root}>
-      {contextHolder}
+    <div className="root">
       <Typography variant="h4" component="h4" align="center" m={5}>
         {t["Records"]}
       </Typography>
@@ -195,7 +174,6 @@ const Records = ({ role }) => {
         record={record}
         open={open}
         setOpen={setOpen}
-        openNotification={openNotification}
         fetchrecords={fetchRecords}
       />
       <Input
@@ -225,7 +203,7 @@ const Records = ({ role }) => {
         pageSizeOptions={[5]}
         disableRowSelectionOnClick
         autoHeight
-        getRowClassName={() => classes.row}
+        getRowClassName={() => "row"}
         slots={{ toolbar: GridToolbar }}
         disableExtendRowFullWidth
       />

@@ -40,6 +40,17 @@ body {
   display: flex;
 }
 
+.root {
+  max-height: 100%;
+  width: 95%;
+  margin: 0 auto;
+}
+
+.row {
+  width: 100%;
+  max-width: 100%;
+}
+
 @media screen and (max-width: 767px) {
   .desktop {
     display: none;

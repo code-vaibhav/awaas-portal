@@ -1,0 +1,46 @@
+import React from "react";
+import { ToastContainer, toast } from "react-toastify";
+import Box from "@mui/material/Box";
+
+const warningColor = {
+  background: "#505050",
+  text: "#fff",
+};
+
+const successColor = {
+  background: "#98FB98",
+  text: "#000",
+};
+
+const errorColor = {
+  background: "#F08080",
+  text: "#000",
+};
+
+export const WarningMessage = function (message) {
+  toast.warn(message, { ...warningColor, autoClose: 3000 });
+};
+
+export const SuccessMessage = function (message) {
+  toast.success(message, { ...successColor, autoClose: 3000 });
+};
+
+export const ErrorMessage = function (message) {
+  toast.error(message, { ...errorColor, autoClose: 3000 });
+};
+
+export default function FixedNotification() {
+  return (
+    <Box
+      bgcolor=""
+      color="white"
+      p={3}
+      position="fixed"
+      top={60}
+      left="48%"
+      zIndex="tooltip"
+    >
+      <ToastContainer />
+    </Box>
+  );
+}
