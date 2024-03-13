@@ -65,6 +65,9 @@ const AddRecords = () => {
       {
         method: "POST",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ applications: jsonData }),
       }
     )
@@ -298,7 +301,7 @@ const AddRecords = () => {
                                 { label: t["Inspector"], value: "inspector" },
                                 { label: t["SI"], value: "si" },
                                 { label: t["Stenos"], value: "stenos" },
-                                { label: t["Constable"], value: "manual" },
+                                { label: t["Constable"], value: "constable" },
                                 { label: t["HC"], value: "hc" },
                                 {
                                   label: t["4th Class Follower"],
@@ -351,4 +354,5 @@ const AddRecords = () => {
   );
 };
 
-export default () => <WithAuthorization Children={AddRecords} isRoot={false} />;
+// export default () => <WithAuthorization Children={AddRecords} isRoot={false} />;
+export default AddRecords;

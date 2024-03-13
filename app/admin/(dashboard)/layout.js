@@ -4,7 +4,7 @@ import { Layout, Menu, Flex, Typography, Space, Button } from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { langState } from "@/utils/atom";
+import { langState, authState } from "@/utils/atom";
 import text from "@/text.json";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
@@ -16,9 +16,7 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import FolderIcon from "@mui/icons-material/Folder";
 import NoteIcon from "@mui/icons-material/Note";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import { auth, logOut } from "@/utils/auth";
-import { onAuthStateChanged } from "firebase/auth";
-import { authState } from "@/utils/atom";
+import { logOut } from "@/utils/auth";
 
 const { Sider, Content, Header } = Layout;
 
@@ -26,20 +24,6 @@ export default function DashboardWrapper({ children }) {
   const pathname = usePathname();
   const t = text[useRecoilValue(langState)];
   const setAuth = useSetRecoilState(authState);
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      user.getIdToken().then((IdToken) => {
-        setAuth({
-          user: user.email,
-          token: IdToken,
-          role: user?.customClaims?.role || "admin",
-        });
-      });
-    } else {
-      setAuth(null);
-    }
-  });
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -55,6 +39,7 @@ export default function DashboardWrapper({ children }) {
             <Menu
               theme="dark"
               mode="horizontal"
+              disabledOverflow
               defaultSelectedKeys={
                 pathname.split("/")[1] === ""
                   ? ["1"]
@@ -89,7 +74,9 @@ export default function DashboardWrapper({ children }) {
                 },
               ]}
             />
-            <LanguageSwitcher />
+            <Button onClick={() => logOut().then(() => setAuth(null))}>
+              Logout
+            </Button>
           </Space>
         </Flex>
       </Header>
@@ -148,12 +135,11 @@ export default function DashboardWrapper({ children }) {
                 label: <Link href="/admin/users">{t["Users"]}</Link>,
                 icon: <GroupIcon />,
               },
-              {
-                key: "6",
-                label: <Button onClick={logOut}>Logout</Button>,
-              },
             ]}
           />
+          <div style={{ marginLeft: "20px", marginTop: "20px" }}>
+            <LanguageSwitcher />
+          </div>
         </Sider>
         <Content
           style={{

@@ -13,7 +13,6 @@ const WithAuthorization = ({ Children, isRoot }) => {
   const t = text[useRecoilValue(langState)];
 
   useEffect(() => {
-    console.log(auth);
     if (!auth) {
       router.push("/admin");
     }

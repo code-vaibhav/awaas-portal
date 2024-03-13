@@ -12,18 +12,24 @@ export default function NoticeForm({ mode, notice, setOpen, fetchNotices }) {
   const t = text[useRecoilValue(langState)];
 
   const addNotice = (values) => {
-    console.log(values);
     setProcessing(true);
 
+    console.log(values);
     const formData = new FormData();
-    formData.append("file", values.file);
-    formData.append("heading", values.heading);
+    formData.append("file", values.file.file);
     formData.append(
-      "type",
-      values.type === "allocation" ? values.type : values.type_text
+      "data",
+      values.type === "allocation"
+        ? JSON.stringify({
+            heading: values.heading,
+            type: "allocation",
+            pnos: values.pnos,
+          })
+        : JSON.stringify({
+            heading: values.heading,
+            type: values.type_text,
+          })
     );
-    if (values.type === "allocation")
-      formData.append("pnos", JSON.stringify(values.pnos));
 
     fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/${
@@ -31,9 +37,6 @@ export default function NoticeForm({ mode, notice, setOpen, fetchNotices }) {
       }`,
       {
         method: "PUT",
-        headers: {
-          "Content-Type": `multipart/form-data; boundary=${formData._boundary}`,
-        },
         credentials: "include",
         body: formData,
       }
@@ -118,7 +121,7 @@ export default function NoticeForm({ mode, notice, setOpen, fetchNotices }) {
           accept=".pdf"
           valuePropName="file"
         >
-          <Button variant="contained" component="span" disabled={processing}>
+          <Button variant="contained" component="span">
             {t["Select File"]}
           </Button>
         </Upload>

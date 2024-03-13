@@ -29,16 +29,15 @@ export const ErrorMessage = function (message) {
   toast.error(message, { ...errorColor, autoClose: 3000 });
 };
 
-export default function FixedNotification() {
+export default function Notification() {
   return (
     <Box
-      bgcolor=""
       color="white"
       p={3}
       position="fixed"
       top={60}
       left="48%"
-      zIndex="tooltip"
+      zIndex={10000} // Example z-index value, adjust as needed
     >
       <ToastContainer />
     </Box>

@@ -69,7 +69,11 @@ const Notices = () => {
       field: "url",
       headerName: t["URL"],
       flex: 1,
-      renderCell: (params) => <a href={`${params.url}`} />,
+      renderCell: (params) => (
+        <a target="_blank" href={`${params.row.url}`}>
+          URL
+        </a>
+      ),
     },
     {
       field: "type",
@@ -77,16 +81,19 @@ const Notices = () => {
       flex: 1,
     },
     {
-      field: "date",
+      field: "releasedOn",
       headerName: t["Release Date"],
       flex: 1,
+      renderCell: (params) => (
+        <p>{new Date(params.row.releasedOn).toLocaleDateString("en-GB")}</p>
+      ),
     },
     {
       field: "action",
       headerName: t["Actions"],
       renderCell: (params) => (
         <Space>
-          <Button
+          {/* <Button
             variant="outlined"
             color="warning"
             startIcon={<EditIcon fontSize="inherit" />}
@@ -96,7 +103,7 @@ const Notices = () => {
             }}
           >
             {t["Edit"]}
-          </Button>
+          </Button> */}
           <Popconfirm
             placement="topLeft"
             title={t[`Are you sure to delete this notice?`]}
@@ -160,4 +167,5 @@ const Notices = () => {
   );
 };
 
-export default () => <WithAuthorization Children={Notices} isRoot={false} />;
+// export default () => <WithAuthorization Children={Notices} isRoot={false} />;
+export default Notices;

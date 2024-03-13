@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Typography, List } from "antd";
+import { Typography, List, Spin } from "antd";
 import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import { AuditOutlined, CreditCardOutlined } from "@ant-design/icons";
@@ -28,49 +28,67 @@ export default function Home() {
       .catch((err) => console.error(err));
   }, []);
 
-  return (
+  return notices.length ? (
     <div>
       <Typography.Title level={1} style={{ textAlign: "center" }}>
         {t["Notices"]}
       </Typography.Title>
-      <List
-        itemLayout="vertical"
-        size="large"
-        pagination={{
-          onChange: (page) => {
-            console.log(page);
-          },
-          pageSize: 3,
-        }}
-        dataSource={notices}
-        renderItem={(notice) => (
-          <List.Item
-            key={item.heading}
-            extra={
-              <img
-                src={`https://docs.google.com/viewer?url=${notice.url}&pid=explorer&efh=false&a=v&chrome=false&embedded=true`}
+      <div style={{ width: "70%", margin: "auto" }}>
+        <List
+          itemLayout="vertical"
+          size="small"
+          pagination={{
+            onChange: (page) => {
+              console.log(page);
+            },
+            pageSize: 5,
+          }}
+          dataSource={notices.sort(
+            (a, b) => new Date(b.releasedOn) - new Date(a.releasedOn)
+          )}
+          renderItem={(notice) => (
+            <List.Item
+              key={notice.heading}
+              extra={
+                <div className="pdf-container">
+                  <div className="pdf-link">
+                    <iframe
+                      src={notice.url}
+                      title="PDF Preview"
+                      width="100%"
+                      className="pdf-iframe"
+                    ></iframe>
+                  </div>
+                  <a target="_blank" href={notice.url} className="pdf-overlay">
+                    View
+                  </a>
+                </div>
+              }
+            >
+              <List.Item.Meta
+                avatar={
+                  notice.type === "allotment" ? (
+                    <AuditOutlined />
+                  ) : (
+                    <CreditCardOutlined />
+                  )
+                }
+                title={
+                  <a target="_blank" href={notice.url}>
+                    {notice.heading}
+                  </a>
+                }
+                description={new Date(notice.releasedOn).toLocaleDateString(
+                  "en-GB"
+                )}
               />
-            }
-          >
-            <List.Item.Meta
-              avatar={
-                notice.type === "allotment" ? (
-                  <AuditOutlined />
-                ) : (
-                  <CreditCardOutlined />
-                )
-              }
-              title={
-                <a target="_blank" href={notice.url}>
-                  {notice.heading}
-                </a>
-              }
-              description={notice.date}
-            />
-            {notice.type}
-          </List.Item>
-        )}
-      />
+              {notice.type}
+            </List.Item>
+          )}
+        />
+      </div>
     </div>
+  ) : (
+    <Spin spinning={true} fullscreen />
   );
 }

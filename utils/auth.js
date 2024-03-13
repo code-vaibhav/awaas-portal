@@ -3,10 +3,10 @@ import app from "./firebase";
 
 export const auth = getAuth(app);
 
-export const logIn = async (email, password, router) => {
+export const logIn = async (email, password) => {
   try {
     const creds = await signInWithEmailAndPassword(auth, email, password);
-    router.push("/admin/records/add");
+    return creds.user;
   } catch (error) {
     console.error("Login failed:", error.message);
   }

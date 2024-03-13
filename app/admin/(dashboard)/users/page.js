@@ -1,24 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Typography, Button } from "@mui/material";
+import { useState, useEffect, useRef } from "react";
+import { Typography } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Popconfirm, Space, Input, Form } from "antd";
+import { Popconfirm, Space, Input, Form, Spin, Button } from "antd";
 import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import text from "@/text.json";
 import WithAuthorization from "@/components/WithAuth";
 import { SuccessMessage, ErrorMessage } from "@/components/Notification";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [processing, setProcessing] = useState(false);
   const lang = useRecoilValue(langState);
   const t = text[lang];
+  const form = useRef();
 
   const fetchUsers = () => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/magaer/all`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/manager/all`, {
       method: "GET",
       credentials: "include",
     })
@@ -37,16 +39,18 @@ const Users = () => {
 
   const deleteUser = (id) => {
     setProcessing(id);
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/manager/delete`, {
-      method: "DELETE",
-      body: { id },
-      credentials: "include",
-    })
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/manager/delete?id=${id}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["User Deleted"]);
-          fetchRecords();
+          fetchUsers();
         } else {
           console.error(data.message);
           ErrorMessage(t["Error Deleting User"]);
@@ -60,15 +64,19 @@ const Users = () => {
   };
 
   const addUser = (values) => {
-    setProcessing(true);
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/manager/register`, {
+    setProcessing("add");
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/manager/register`, {
       method: "POST",
       credentials: "include",
-      body: values,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
+          form.current.resetFields();
           SuccessMessage(t["User Added"]);
           fetchUsers();
         } else {
@@ -93,6 +101,7 @@ const Users = () => {
       field: "role",
       headerName: t["Role"],
       flex: 1,
+      renderCell: (params) => <p>{params.row.customClaims.role}</p>,
     },
     {
       field: "action",
@@ -101,18 +110,18 @@ const Users = () => {
         <Space>
           <Popconfirm
             placement="topLeft"
-            title={t[`Are you sure to delete this user?`]}
+            title={"Are you sure to delete this user"}
             okText={t["Yes"]}
             cancelText={t["No"]}
-            onConfirm={() => deleteUser(params.row.id)}
+            onConfirm={() => deleteUser(params.row.uid)}
           >
             <Button
               variant="outlined"
               color="warning"
-              disabled={processing}
+              disabled={processing === params.row.uid}
               startIcon={<DeleteIcon fontSize="inherit" />}
             >
-              {processing === params.row.id && (
+              {processing === params.row.uid && (
                 <Spin
                   indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
                 />
@@ -132,12 +141,13 @@ const Users = () => {
         {t["Users"]}
       </Typography>
       <Form
+        ref={form}
         name="add_user"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         onFinish={addUser}
         autoComplete="off"
-        style={{ color: "#fff" }}
+        style={{ color: "#fff", marginBottom: "10px" }}
         layout="inline"
       >
         <Form.Item label={t["Email"]} name="email" required>
@@ -147,8 +157,12 @@ const Users = () => {
           <Input.Password lang={lang} type="text" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" disabled={processing}>
-            {processing && (
+          <Button
+            type="primary"
+            htmlType="submit"
+            disabled={processing === "add"}
+          >
+            {processing === "add" && (
               <Spin
                 indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
               />
@@ -160,7 +174,7 @@ const Users = () => {
       <DataGrid
         rows={users}
         columns={columns}
-        getRowId={(row) => row.id}
+        getRowId={(row) => row.uid}
         showColumnVerticalBorder
         showCellVerticalBorder
         initialState={{
@@ -181,4 +195,5 @@ const Users = () => {
   );
 };
 
-export default () => <WithAuthorization Children={Users} isRoot={true} />;
+// export default () => <WithAuthorization Children={Users} isRoot={true} />;
+export default Users;

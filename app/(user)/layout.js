@@ -73,6 +73,7 @@ const RootLayout = ({ children }) => {
             <Menu
               theme="dark"
               mode="horizontal"
+              disabledOverflow
               defaultSelectedKeys={
                 currentURL.split("/")[1] === ""
                   ? ["1"]
@@ -95,8 +96,11 @@ const RootLayout = ({ children }) => {
         onClose={() => setIsDrawerVisible(false)}
         open={isDrawerVisible}
         width={200}
-        style={{ width: "max-content", background: "#001529" }}
-        bodyStyle={{ padding: 0 }}
+        style={{
+          width: "max-content",
+          background: "#001529",
+          body: { padding: 0 },
+        }}
         closeIcon={<CloseIcon style={{ color: "white" }} />}
       >
         <Space direction="vertical" align="center">

@@ -20,4 +20,5 @@ const AddNotice = () => {
   );
 };
 
-export default () => <WithAuthorization Children={AddNotice} isRoot={false} />;
+// export default () => <WithAuthorization Children={AddNotice} isRoot={false} />;
+export default AddNotice;

@@ -5,13 +5,13 @@ import { Button, Form, Input, Typography } from "antd";
 import { useRouter } from "next/navigation";
 import { logIn } from "@/utils/auth";
 import { authState, langState } from "@/utils/atom";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import text from "@/text.json";
 
 export default function Login() {
   const router = useRouter();
   const lang = useRecoilValue(langState);
-  const auth = useRecoilValue(authState);
+  const [auth, setAuth] = useRecoilState(authState);
   const t = text[lang];
 
   useEffect(() => {
@@ -37,7 +37,23 @@ export default function Login() {
           maxWidth: "500px",
           width: "90%",
         }}
-        onFinish={(values) => logIn(values.email, values.password, router)}
+        onFinish={(values) =>
+          logIn(values.email, values.password).then((user) => {
+            user
+              .getIdToken()
+              .then((IdToken) => {
+                setAuth({
+                  user: user.email,
+                  token: IdToken,
+                  role: user?.customClaims?.role || "admin",
+                });
+                router.push("/admin/records");
+              })
+              .catch((err) => {
+                console.error(err);
+              });
+          })
+        }
         autoComplete="off"
       >
         <Form.Item label={t["Email"]} name="email" required>
