@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Typography, List, Spin } from "antd";
+import { List, Spin } from "antd";
+import { Typography } from "@mui/material";
 import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import { AuditOutlined, CreditCardOutlined } from "@ant-design/icons";
@@ -30,9 +31,9 @@ export default function Home() {
 
   return notices.length ? (
     <div>
-      <Typography.Title level={1} style={{ textAlign: "center" }}>
+      <Typography variant="h4" align="center" my={4}>
         {t["Notices"]}
-      </Typography.Title>
+      </Typography>
       <div style={{ width: "70%", margin: "auto" }}>
         <List
           itemLayout="vertical"

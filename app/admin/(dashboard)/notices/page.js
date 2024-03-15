@@ -5,24 +5,32 @@ import { Typography, Button } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { Popconfirm, Space, Modal } from "antd";
+import { Popconfirm, Space, Spin } from "antd";
 import NoticeForm from "@/components/NoticeForm";
-import { langState } from "@/utils/atom";
+import { authState, langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import text from "@/text.json";
 import WithAuthorization from "@/components/WithAuth";
+import { LoadingOutlined } from "@ant-design/icons";
 import { ErrorMessage, SuccessMessage } from "@/components/Notification";
+import AddIcon from "@mui/icons-material/Add";
 
 const Notices = () => {
   const [notices, setNotices] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [notice, setNotice] = useState();
   const t = text[useRecoilValue(langState)];
+  const auth = useState(authState);
+  const [processing, setProcessing] = useState(false);
 
   const fetchNotices = () => {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/all`, {
       method: "GET",
       credentials: "include",
+      headers: {
+        Authorization: `Bearer ${auth?.token}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -38,11 +46,17 @@ const Notices = () => {
   useEffect(fetchNotices, []);
 
   const deleteNotice = (id) => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/delete`, {
-      method: "DELETE",
-      credentials: "include",
-      body: JSON.stringify({ id }),
-    })
+    setProcessing(id);
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/delete?id=${id}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${auth?.token}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
@@ -56,7 +70,8 @@ const Notices = () => {
       .catch((err) => {
         console.error(err);
         ErrorMessage(t["Error Deleting Notice"]);
-      });
+      })
+      .finally(() => setProcessing(false));
   };
 
   const columns = [
@@ -93,20 +108,20 @@ const Notices = () => {
       headerName: t["Actions"],
       renderCell: (params) => (
         <Space>
-          {/* <Button
+          <Button
             variant="outlined"
-            color="warning"
+            color="primary"
             startIcon={<EditIcon fontSize="inherit" />}
             onClick={() => {
               setNotice(params.row);
-              setOpen(true);
+              setEditOpen(true);
             }}
           >
             {t["Edit"]}
-          </Button> */}
+          </Button>
           <Popconfirm
             placement="topLeft"
-            title={t[`Are you sure to delete this notice?`]}
+            title={t[`Delete Notice`]}
             okText={t["Yes"]}
             cancelText={t["No"]}
             onConfirm={() => deleteNotice(params.row.id)}
@@ -114,14 +129,25 @@ const Notices = () => {
             <Button
               variant="outlined"
               color="warning"
-              startIcon={<DeleteIcon fontSize="inherit" />}
+              disabled={!!processing}
+              startIcon={
+                processing === params.row.id ? (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }
+                  />
+                ) : (
+                  <DeleteIcon fontSize="inherit" />
+                )
+              }
             >
               {t["Delete"]}
             </Button>
           </Popconfirm>
         </Space>
       ),
-      flex: 1,
+      width: 250,
     },
   ];
 
@@ -130,19 +156,28 @@ const Notices = () => {
       <Typography variant="h4" component="h4" align="center" m={5}>
         {t["Notices"]}
       </Typography>
-      <Modal
-        title={t["Edit Notice"]}
-        open={open}
-        onCancel={() => setOpen(false)}
-        footer={null}
+      <Button
+        onClick={() => setAddOpen(true)}
+        startIcon={<AddIcon />}
+        variant="contained"
+        style={{ marginBottom: "5px" }}
       >
-        <NoticeForm
-          mode="edit"
-          notice={notice}
-          setOpen={setOpen}
-          fetchNotices={fetchNotices}
-        />
-      </Modal>
+        {t["Add Notice"]}
+      </Button>
+      <NoticeForm
+        mode="add"
+        notice={notice}
+        open={addOpen}
+        setOpen={setAddOpen}
+        fetchNotices={fetchNotices}
+      />
+      <NoticeForm
+        mode="edit"
+        notice={notice}
+        open={editOpen}
+        setOpen={setEditOpen}
+        fetchNotices={fetchNotices}
+      />
       <DataGrid
         rows={notices}
         columns={columns}

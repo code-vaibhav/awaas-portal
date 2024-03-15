@@ -1,19 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Descriptions,
-  Typography,
-  Space,
-  Spin,
-} from "antd";
+import { Button, Form, Input, Descriptions, Space, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import text from "@/text.json";
+import { Typography } from "@mui/material";
 import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 
 export default function Status() {
@@ -51,9 +44,9 @@ export default function Status() {
 
   return (
     <div>
-      <Typography.Title level={2} style={{ textAlign: "center" }}>
+      <Typography variant="h4" align="center" gutterBottom my={4}>
         {t["Check Allocation Status"]}
-      </Typography.Title>
+      </Typography>
       <Space
         direction="vertical"
         style={{ alignItems: "center", width: "100%" }}

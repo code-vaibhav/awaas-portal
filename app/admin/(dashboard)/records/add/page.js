@@ -13,19 +13,30 @@ import {
 } from "antd";
 import { Typography } from "@mui/material";
 import { LoadingOutlined } from "@ant-design/icons";
-import { langState } from "@/utils/atom";
+import { authState, langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import text from "@/text.json";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import WithAuthorization from "@/components/WithAuth";
 import * as XLSX from "xlsx";
 import { SuccessMessage, ErrorMessage } from "@/components/Notification";
+import { useRouter } from "next/navigation";
 
 const AddRecords = () => {
   const [processing, setProcessing] = useState(false);
   const lang = useRecoilValue(langState);
+  const auth = useRecoilValue(authState);
   const t = text[lang];
   const form = useRef();
+  const rankMap = {
+    [t["Inspector"]]: "inspector",
+    [t["SI"]]: "si",
+    [t["Stenos"]]: "stenos",
+    [t["Constable"]]: "constable",
+    [t["HC"]]: "hc",
+    [t["4th Class Follower"]]: "follower",
+  };
+  const router = useRouter();
 
   const addRecords = (data) => {
     setProcessing(true);
@@ -46,18 +57,22 @@ const AddRecords = () => {
         // Parse the sheet data into a JSON object
         jsonData = XLSX.utils.sheet_to_json(sheet).map((record) => ({
           name: record[t["Name"]],
-          rank: record[t["Rank"]],
+          officerRank: record[t["Rank"]],
           pno: record[t["PNO"]],
           badgeNumber: record[t["Badge No"]],
           mobile: record[t["Mobile No"]],
-          registrationNumber: record[`Registration No`],
-          applicationDate: record[`Application Date`],
+          registrationNumber: record[t[`Registration No`]],
+          applicationDate: record[t[`Application Date`]],
+          rank: rankMap(record[t["Rank"]]),
         }));
       };
 
       reader.readAsArrayBuffer(data.excel_sheet.originFileObj);
     } else {
-      jsonData = data.records;
+      jsonData = data.records.map((record) => ({
+        ...record,
+        officerRank: t[record.rank],
+      }));
     }
 
     fetch(
@@ -67,6 +82,7 @@ const AddRecords = () => {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${auth?.token}`,
         },
         body: JSON.stringify({ applications: jsonData }),
       }
@@ -76,6 +92,7 @@ const AddRecords = () => {
         if (data.status) {
           SuccessMessage(t["Records Added"]);
           form.current.resetFields();
+          router.push("/admin/records");
         } else {
           console.error(data.message);
           ErrorMessage(t["Error Adding Records"]);
@@ -161,7 +178,7 @@ const AddRecords = () => {
                       <Button
                         variant="contained"
                         component="span"
-                        disabled={processing}
+                        disabled={!!processing}
                       >
                         {t["Select Excel Sheet"]}
                       </Button>
@@ -170,7 +187,7 @@ const AddRecords = () => {
                   <Button
                     type="primary"
                     htmlType="submit"
-                    disabled={processing}
+                    disabled={!!processing}
                   >
                     {processing && (
                       <Spin
@@ -233,7 +250,7 @@ const AddRecords = () => {
                       <Button
                         type="primary"
                         htmlType="submit"
-                        disabled={processing}
+                        disabled={!!processing}
                       >
                         {processing && (
                           <Spin
@@ -298,13 +315,13 @@ const AddRecords = () => {
                             <Select
                               placeholder={t["Select Rank"]}
                               options={[
-                                { label: t["Inspector"], value: "inspector" },
-                                { label: t["SI"], value: "si" },
-                                { label: t["Stenos"], value: "stenos" },
-                                { label: t["Constable"], value: "constable" },
-                                { label: t["HC"], value: "hc" },
+                                { label: t["inspector"], value: "inspector" },
+                                { label: t["si"], value: "si" },
+                                { label: t["stenos"], value: "stenos" },
+                                { label: t["constable"], value: "constable" },
+                                { label: t["hc"], value: "hc" },
                                 {
-                                  label: t["4th Class Follower"],
+                                  label: t["follower"],
                                   value: "follower",
                                 },
                               ]}

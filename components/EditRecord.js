@@ -1,32 +1,34 @@
 import { useState } from "react";
-import { Modal, Form, Input, Select, Button, DatePicker } from "antd";
+import { Modal, Form, Input, Select, Button, Spin } from "antd";
 import { useRecoilValue } from "recoil";
-import { langState } from "@/utils/atom";
+import { langState, authState } from "@/utils/atom";
 import text from "@/text.json";
 import { SuccessMessage, ErrorMessage } from "./Notification";
+import { LoadingOutlined } from "@ant-design/icons";
 
-export default function EditRecord({
-  record,
-  open,
-  setOpen,
-  fetchApplications,
-}) {
+export default function EditRecord({ record, open, setOpen, fetchRecords }) {
   const [processing, setProcessing] = useState(false);
   const lang = useRecoilValue(langState);
+  const auth = useRecoilValue(authState);
   const t = text[lang];
 
   const editRecord = (values) => {
     setProcessing(true);
+    console.log(values);
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/update`, {
       method: "POST",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth?.token}`,
+      },
       body: JSON.stringify({ id: record.id, data: values }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Record Updated"]);
-          fetchApplications();
+          fetchRecords();
           setOpen(false);
         } else {
           console.error(data.message);
@@ -41,50 +43,46 @@ export default function EditRecord({
   };
 
   return (
-    <Modal title="Edit Record" open={open} footer={null}>
+    <Modal
+      title={t["Edit Record"]}
+      open={open}
+      onCancel={() => setOpen(false)}
+      footer={null}
+    >
       <Form
         name="edit_record"
-        labelCol={{ span: 8 }}
+        labelCol={{ span: 7 }}
         wrapperCol={{ span: 16 }}
         onFinish={editRecord}
         autoComplete="off"
         style={{ color: "#fff" }}
-        initialValues={record}
+        labelAlign="left"
+        initialValues={{
+          registrationNumber: record?.registrationNumber || "",
+          name: record?.name || "",
+          rank: record?.rank || "",
+          pno: record?.pno || "",
+          badgeNumber: record?.badgeNumber || "",
+          mobile: record?.mobile || "",
+        }}
       >
-        <Form.Item
-          label={t["Registration No"]}
-          name="registrationNumber"
-          required
-        >
-          <Input type="number" />
+        <Form.Item label={t["Registration No"]} name="registrationNumber">
+          <Input lang={lang} type="number" />
         </Form.Item>
-        <Form.Item label={t["Name"]} name="name" required>
+        <Form.Item label={t["Name"]} name="name">
           <Input lang={lang} type="text" />
         </Form.Item>
-        <Form.Item
-          label={t["Application Date"]}
-          name="applicationDate"
-          required
-        >
-          <DatePicker
-            disabledDate={(current) =>
-              current &&
-              current.valueOf() > new Date().setHours(0, 0, 0, 0).valueOf()
-            }
-            format="DD/MM/YYYY"
-          />
-        </Form.Item>
-        <Form.Item label={t["Rank"]} name="rank" required>
+        <Form.Item label={t["Rank"]} name="rank">
           <Select
             placeholder={t["Select Rank"]}
             options={[
-              { label: t["Inspector"], value: "inspector" },
-              { label: t["SI"], value: "si" },
-              { label: t["Stenos"], value: "stenos" },
-              { label: t["Constable"], value: "manual" },
-              { label: t["HC"], value: "hc" },
+              { label: t["inspector"], value: "inspector" },
+              { label: t["si"], value: "si" },
+              { label: t["stenos"], value: "stenos" },
+              { label: t["constable"], value: "constable" },
+              { label: t["hc"], value: "hc" },
               {
-                label: t["4th Class Follower"],
+                label: t["follower"],
                 value: "follower",
               },
             ]}
@@ -99,8 +97,13 @@ export default function EditRecord({
         <Form.Item label={t["Mobile No"]} name="mobile">
           <Input type="number" />
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" disabled={processing}>
+        <Form.Item style={{ margin: "auto" }} wrapperCol={{ span: 24 }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            disabled={processing}
+            style={{ marginLeft: "50%", transform: "translateX(-50%)" }}
+          >
             {processing && (
               <Spin
                 indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}

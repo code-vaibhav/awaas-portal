@@ -97,10 +97,8 @@ export default function DashboardWrapper({ children }) {
                   ? ["1"]
                   : ["2"]
                 : pathname.split("/")[2] === "notices"
-                ? pathname.split("/").length <= 3
-                  ? ["3"]
-                  : ["4"]
-                : ["5"]
+                ? ["3"]
+                : ["4"]
             }
             theme="dark"
             style={{
@@ -123,15 +121,10 @@ export default function DashboardWrapper({ children }) {
               {
                 key: "3",
                 label: <Link href="/admin/notices">{t["Notices"]}</Link>,
-                icon: <NoteIcon />,
-              },
-              {
-                key: "4",
-                label: <Link href="/admin/notices/add">{t["Add Notice"]}</Link>,
                 icon: <NoteAddIcon />,
               },
               {
-                key: "5",
+                key: "4",
                 label: <Link href="/admin/users">{t["Users"]}</Link>,
                 icon: <GroupIcon />,
               },

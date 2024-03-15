@@ -15,10 +15,26 @@ export default function Login() {
   const t = text[lang];
 
   useEffect(() => {
+    // Redirect if already authenticated
     if (auth) {
       router.push("/admin/records");
     }
   }, []);
+
+  const onFinish = async (values) => {
+    try {
+      const user = await logIn(values.email, values.password);
+      const IdToken = await user.getIdToken();
+      setAuth({
+        user: user.email,
+        token: IdToken,
+        role: user?.customClaims?.role || "admin",
+      });
+      router.push("/admin/records");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div
@@ -30,50 +46,36 @@ export default function Login() {
         flexDirection: "column",
       }}
     >
-      <Typography.Title level={3}>{t["Login"]}</Typography.Title>
+      <Typography.Title level={3} style={{ marginBottom: 24 }}>
+        {t["Login"]}
+      </Typography.Title>
       <Form
         name="login"
-        style={{
-          maxWidth: "500px",
-          width: "90%",
-        }}
-        onFinish={(values) =>
-          logIn(values.email, values.password).then((user) => {
-            user
-              .getIdToken()
-              .then((IdToken) => {
-                setAuth({
-                  user: user.email,
-                  token: IdToken,
-                  role: user?.customClaims?.role || "admin",
-                });
-                router.push("/admin/records");
-              })
-              .catch((err) => {
-                console.error(err);
-              });
-          })
-        }
+        style={{ maxWidth: 500, width: "90%" }}
+        onFinish={onFinish}
         autoComplete="off"
       >
-        <Form.Item label={t["Email"]} name="email" required>
+        <Form.Item
+          label={t["Email"]}
+          name="email"
+          required
+          style={{ marginBottom: 16 }}
+        >
           <Input lang={lang} type="email" />
         </Form.Item>
 
-        <Form.Item label={t["Password"]} name="password" required>
+        <Form.Item
+          label={t["Password"]}
+          name="password"
+          required
+          style={{ marginBottom: 24 }}
+        >
           <Input.Password lang={lang} />
         </Form.Item>
 
-        <Form.Item
-          wrapperCol={{
-            offset: 12,
-            span: 16,
-          }}
-        >
-          <Button type="primary" htmlType="submit">
-            {t["Submit"]}
-          </Button>
-        </Form.Item>
+        <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
+          {t["Submit"]}
+        </Button>
       </Form>
     </div>
   );

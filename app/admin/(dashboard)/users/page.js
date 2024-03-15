@@ -1,21 +1,23 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Typography } from "@mui/material";
+import { Typography, Button } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Popconfirm, Space, Input, Form, Spin, Button } from "antd";
-import { langState } from "@/utils/atom";
+import { Popconfirm, Space, Input, Form, Spin } from "antd";
+import { authState, langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import text from "@/text.json";
 import WithAuthorization from "@/components/WithAuth";
 import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 import { LoadingOutlined } from "@ant-design/icons";
+import AddIcon from "@mui/icons-material/Add";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [processing, setProcessing] = useState(false);
   const lang = useRecoilValue(langState);
+  const auth = useRecoilValue(authState);
   const t = text[lang];
   const form = useRef();
 
@@ -23,6 +25,9 @@ const Users = () => {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/manager/all`, {
       method: "GET",
       credentials: "include",
+      headers: {
+        Authorization: `Bearer ${auth?.token}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -44,6 +49,9 @@ const Users = () => {
       {
         method: "DELETE",
         credentials: "include",
+        headers: {
+          Authorization: `Bearer ${auth?.token}`,
+        },
       }
     )
       .then((res) => res.json())
@@ -70,6 +78,7 @@ const Users = () => {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${auth?.token}`,
       },
       body: JSON.stringify(values),
     })
@@ -110,7 +119,7 @@ const Users = () => {
         <Space>
           <Popconfirm
             placement="topLeft"
-            title={"Are you sure to delete this user"}
+            title={t["User Delete"]}
             okText={t["Yes"]}
             cancelText={t["No"]}
             onConfirm={() => deleteUser(params.row.uid)}
@@ -118,14 +127,19 @@ const Users = () => {
             <Button
               variant="outlined"
               color="warning"
-              disabled={processing === params.row.uid}
-              startIcon={<DeleteIcon fontSize="inherit" />}
+              disabled={!!processing && processing !== "add"}
+              startIcon={
+                processing === params.row.uid ? (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }
+                  />
+                ) : (
+                  <DeleteIcon fontSize="inherit" />
+                )
+              }
             >
-              {processing === params.row.uid && (
-                <Spin
-                  indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
-                />
-              )}
               {t["Delete"]}
             </Button>
           </Popconfirm>
@@ -161,12 +175,18 @@ const Users = () => {
             type="primary"
             htmlType="submit"
             disabled={processing === "add"}
+            variant="contained"
+            style={{ width: "max-content" }}
+            startIcon={
+              processing === "add" ? (
+                <Spin
+                  indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
+                />
+              ) : (
+                <AddIcon />
+              )
+            }
           >
-            {processing === "add" && (
-              <Spin
-                indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
-              />
-            )}
             {t["Add User"]}
           </Button>
         </Form.Item>
