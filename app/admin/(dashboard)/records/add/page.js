@@ -14,18 +14,18 @@ import {
 import { Typography } from "@mui/material";
 import { LoadingOutlined } from "@ant-design/icons";
 import { authState, langState } from "@/utils/atom";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import text from "@/text.json";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import WithAuthorization from "@/components/WithAuth";
 import * as XLSX from "xlsx";
 import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 import { useRouter } from "next/navigation";
+import { checkAuth } from "@/utils/auth";
 
 const AddRecords = () => {
   const [processing, setProcessing] = useState(false);
   const lang = useRecoilValue(langState);
-  const auth = useRecoilValue(authState);
+  const [auth, setAuth] = useRecoilState(authState);
   const t = text[lang];
   const form = useRef();
   const rankMap = {
@@ -87,7 +87,7 @@ const AddRecords = () => {
         body: JSON.stringify({ applications: jsonData }),
       }
     )
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Records Added"]);
@@ -371,5 +371,4 @@ const AddRecords = () => {
   );
 };
 
-// export default () => <WithAuthorization Children={AddRecords} isRoot={false} />;
 export default AddRecords;

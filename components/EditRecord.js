@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Modal, Form, Input, Select, Button, Spin } from "antd";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { langState, authState } from "@/utils/atom";
 import text from "@/text.json";
 import { SuccessMessage, ErrorMessage } from "./Notification";
 import { LoadingOutlined } from "@ant-design/icons";
+import { checkAuth } from "@/utils/auth";
 
 export default function EditRecord({ record, open, setOpen, fetchRecords }) {
   const [processing, setProcessing] = useState(false);
   const lang = useRecoilValue(langState);
-  const auth = useRecoilValue(authState);
+  const [auth, setAuth] = useRecoilState(authState);
   const t = text[lang];
 
   const editRecord = (values) => {
@@ -24,7 +25,7 @@ export default function EditRecord({ record, open, setOpen, fetchRecords }) {
       },
       body: JSON.stringify({ id: record.id, data: values }),
     })
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Record Updated"]);

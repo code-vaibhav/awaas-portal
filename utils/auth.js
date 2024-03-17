@@ -1,5 +1,6 @@
 import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import app from "./firebase";
+import { ErrorMessage } from "@/components/Notification";
 
 export const auth = getAuth(app);
 
@@ -19,4 +20,12 @@ export const logOut = async () => {
     console.error(error.message);
     throw error;
   }
+};
+
+export const checkAuth = (res, setAuth) => {
+  if (res.status === 401) {
+    setAuth(null);
+    ErrorMessage("Session Expired");
+  }
+  return res.json();
 };

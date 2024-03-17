@@ -10,10 +10,10 @@ import NoticeForm from "@/components/NoticeForm";
 import { authState, langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import text from "@/text.json";
-import WithAuthorization from "@/components/WithAuth";
 import { LoadingOutlined } from "@ant-design/icons";
 import { ErrorMessage, SuccessMessage } from "@/components/Notification";
 import AddIcon from "@mui/icons-material/Add";
+import { checkAuth } from "@/utils/auth";
 
 const Notices = () => {
   const [notices, setNotices] = useState([]);
@@ -21,10 +21,12 @@ const Notices = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [notice, setNotice] = useState();
   const t = text[useRecoilValue(langState)];
-  const auth = useState(authState);
+  const [auth, setAuth] = useState(authState);
   const [processing, setProcessing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchNotices = () => {
+    setLoading(true);
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/all`, {
       method: "GET",
       credentials: "include",
@@ -32,7 +34,7 @@ const Notices = () => {
         Authorization: `Bearer ${auth?.token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           setNotices(data.message);
@@ -40,7 +42,8 @@ const Notices = () => {
           console.error(data.message);
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   };
 
   useEffect(fetchNotices, []);
@@ -57,7 +60,7 @@ const Notices = () => {
         },
       }
     )
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Notice Deleted"]);
@@ -197,10 +200,10 @@ const Notices = () => {
         getRowClassName={() => "row"}
         slots={{ toolbar: GridToolbar }}
         disableExtendRowFullWidth
+        loading={loading}
       />
     </div>
   );
 };
 
-// export default () => <WithAuthorization Children={Notices} isRoot={false} />;
 export default Notices;

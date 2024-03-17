@@ -3,7 +3,7 @@
 import { Layout, Menu, Flex, Typography, Space, Button } from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { langState, authState } from "@/utils/atom";
 import text from "@/text.json";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -15,133 +15,175 @@ import GroupIcon from "@mui/icons-material/Group";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import FolderIcon from "@mui/icons-material/Folder";
 import NoteIcon from "@mui/icons-material/Note";
-import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { logOut } from "@/utils/auth";
+import WithAuthorization from "@/components/WithAuth";
 
 const { Sider, Content, Header } = Layout;
-
 export default function DashboardWrapper({ children }) {
   const pathname = usePathname();
   const t = text[useRecoilValue(langState)];
-  const setAuth = useSetRecoilState(authState);
+  const [auth, setAuth] = useRecoilState(authState);
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Header style={{ position: "sticky", top: "0", zIndex: 1000 }}>
-        <Flex justify="space-between" align="center">
-          <Link href="/">
-            <Typography.Title level={3} style={{ color: "white", margin: 0 }}>
-              {t["Awaas Portal"]}
-            </Typography.Title>
-          </Link>
+    <WithAuthorization>
+      <Layout style={{ minHeight: "100vh" }}>
+        <Header style={{ position: "sticky", top: "0", zIndex: 1000 }}>
+          <Flex justify="space-between" align="center">
+            <Link href="/">
+              <Typography.Title level={3} style={{ color: "white", margin: 0 }}>
+                {t["Awaas Portal"]}
+              </Typography.Title>
+            </Link>
 
-          <Space>
+            <Space>
+              <Menu
+                theme="dark"
+                mode="horizontal"
+                disabledOverflow
+                defaultSelectedKeys={
+                  pathname.split("/")[1] === ""
+                    ? ["1"]
+                    : pathname.split("/")[1] === "checkstatus"
+                    ? ["2"]
+                    : pathname.split("/")[1] === "contact"
+                    ? ["3"]
+                    : ["4"]
+                }
+                items={[
+                  {
+                    key: "1",
+                    label: <Link href="/">{t["Home"]}</Link>,
+                    icon: <HomeIcon />,
+                  },
+                  {
+                    key: "2",
+                    label: (
+                      <Link href="/status">{t["Check Allocation Status"]}</Link>
+                    ),
+                    icon: <InfoIcon />,
+                  },
+                  {
+                    key: "3",
+                    label: <Link href="/contact">{t["Contact"]}</Link>,
+                    icon: <PhoneIcon />,
+                  },
+                  {
+                    key: "4",
+                    label: <Link href="/admin">{t["Admin"]}</Link>,
+                    icon: <AdminPanelSettingsIcon />,
+                  },
+                ]}
+              />
+              <Button
+                onClick={() =>
+                  logOut().then(() => {
+                    setAuth(null);
+                    localStorage.removeItem("auth");
+                  })
+                }
+              >
+                Logout
+              </Button>
+            </Space>
+          </Flex>
+        </Header>
+        <Layout style={{ background: "white" }}>
+          <Sider
+            width={200}
+            style={{
+              position: "sticky",
+              left: 0,
+              top: 0,
+            }}
+          >
             <Menu
-              theme="dark"
-              mode="horizontal"
-              disabledOverflow
+              mode="inline"
               defaultSelectedKeys={
-                pathname.split("/")[1] === ""
-                  ? ["1"]
-                  : pathname.split("/")[1] === "checkstatus"
-                  ? ["2"]
-                  : pathname.split("/")[1] === "contact"
+                pathname.split("/")[2] === "records"
+                  ? pathname.split("/").length <= 3
+                    ? ["1"]
+                    : ["2"]
+                  : pathname.split("/")[2] === "notices"
                   ? ["3"]
                   : ["4"]
               }
-              items={[
-                {
-                  key: "1",
-                  label: <Link href="/">{t["Home"]}</Link>,
-                  icon: <HomeIcon />,
-                },
-                {
-                  key: "2",
-                  label: (
-                    <Link href="/status">{t["Check Allocation Status"]}</Link>
-                  ),
-                  icon: <InfoIcon />,
-                },
-                {
-                  key: "3",
-                  label: <Link href="/contact">{t["Contact"]}</Link>,
-                  icon: <PhoneIcon />,
-                },
-                {
-                  key: "4",
-                  label: <Link href="/admin">{t["Admin"]}</Link>,
-                  icon: <AdminPanelSettingsIcon />,
-                },
-              ]}
+              theme="dark"
+              style={{
+                borderRight: 0,
+                padding: "0 10px",
+              }}
+              items={
+                auth?.role === "admin"
+                  ? [
+                      {
+                        key: "1",
+                        label: (
+                          <Link href="/admin/records">{t["Records"]}</Link>
+                        ),
+                        icon: <FolderIcon />,
+                      },
+                      {
+                        key: "2",
+                        label: (
+                          <Link href="/admin/records/add">
+                            {t["Add Records"]}
+                          </Link>
+                        ),
+                        icon: <CreateNewFolderIcon />,
+                      },
+                      {
+                        key: "3",
+                        label: (
+                          <Link href="/admin/notices">{t["Notices"]}</Link>
+                        ),
+                        icon: <NoteIcon />,
+                      },
+                      {
+                        key: "4",
+                        label: <Link href="/admin/users">{t["Users"]}</Link>,
+                        icon: <GroupIcon />,
+                      },
+                    ]
+                  : [
+                      {
+                        key: "1",
+                        label: (
+                          <Link href="/admin/records">{t["Records"]}</Link>
+                        ),
+                        icon: <FolderIcon />,
+                      },
+                      {
+                        key: "2",
+                        label: (
+                          <Link href="/admin/records/add">
+                            {t["Add Records"]}
+                          </Link>
+                        ),
+                        icon: <CreateNewFolderIcon />,
+                      },
+                      {
+                        key: "3",
+                        label: (
+                          <Link href="/admin/notices">{t["Notices"]}</Link>
+                        ),
+                        icon: <NoteIcon />,
+                      },
+                    ]
+              }
             />
-            <Button onClick={() => logOut().then(() => setAuth(null))}>
-              Logout
-            </Button>
-          </Space>
-        </Flex>
-      </Header>
-      <Layout style={{ background: "white" }}>
-        <Sider
-          width={200}
-          style={{
-            position: "sticky",
-            left: 0,
-            top: 0,
-          }}
-        >
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={
-              pathname.split("/")[2] === "records"
-                ? pathname.split("/").length <= 3
-                  ? ["1"]
-                  : ["2"]
-                : pathname.split("/")[2] === "notices"
-                ? ["3"]
-                : ["4"]
-            }
-            theme="dark"
+            <div style={{ marginLeft: "20px", marginTop: "20px" }}>
+              <LanguageSwitcher />
+            </div>
+          </Sider>
+          <Content
             style={{
-              borderRight: 0,
-              padding: "0 10px",
+              margin: 0,
             }}
-            items={[
-              {
-                key: "1",
-                label: <Link href="/admin/records">{t["Records"]}</Link>,
-                icon: <FolderIcon />,
-              },
-              {
-                key: "2",
-                label: (
-                  <Link href="/admin/records/add">{t["Add Records"]}</Link>
-                ),
-                icon: <CreateNewFolderIcon />,
-              },
-              {
-                key: "3",
-                label: <Link href="/admin/notices">{t["Notices"]}</Link>,
-                icon: <NoteAddIcon />,
-              },
-              {
-                key: "4",
-                label: <Link href="/admin/users">{t["Users"]}</Link>,
-                icon: <GroupIcon />,
-              },
-            ]}
-          />
-          <div style={{ marginLeft: "20px", marginTop: "20px" }}>
-            <LanguageSwitcher />
-          </div>
-        </Sider>
-        <Content
-          style={{
-            margin: 0,
-          }}
-        >
-          {children}
-        </Content>
+          >
+            {children}
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
+    </WithAuthorization>
   );
 }

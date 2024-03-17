@@ -6,22 +6,26 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Popconfirm, Space, Input, Form, Spin } from "antd";
 import { authState, langState } from "@/utils/atom";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import text from "@/text.json";
-import WithAuthorization from "@/components/WithAuth";
 import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 import { LoadingOutlined } from "@ant-design/icons";
 import AddIcon from "@mui/icons-material/Add";
+import { useRouter } from "next/navigation";
+import { checkAuth } from "@/utils/auth";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [processing, setProcessing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const lang = useRecoilValue(langState);
-  const auth = useRecoilValue(authState);
+  const [auth, setAuth] = useRecoilState(authState);
   const t = text[lang];
   const form = useRef();
+  const router = useRouter();
 
   const fetchUsers = () => {
+    setLoading(true);
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/manager/all`, {
       method: "GET",
       credentials: "include",
@@ -29,7 +33,7 @@ const Users = () => {
         Authorization: `Bearer ${auth?.token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           setUsers(data.message);
@@ -37,10 +41,18 @@ const Users = () => {
           console.error(data.message);
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   };
 
-  useEffect(fetchUsers, []);
+  useEffect(() => {
+    if (isRoot && auth.role !== "admin") {
+      WarningMessage(t["Access Denied"]);
+      router.push("/admin/records");
+    }
+
+    fetchUsers;
+  }, []);
 
   const deleteUser = (id) => {
     setProcessing(id);
@@ -54,7 +66,7 @@ const Users = () => {
         },
       }
     )
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["User Deleted"]);
@@ -82,7 +94,7 @@ const Users = () => {
       },
       body: JSON.stringify(values),
     })
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           form.current.resetFields();
@@ -210,10 +222,10 @@ const Users = () => {
         getRowClassName={() => "row"}
         slots={{ toolbar: GridToolbar }}
         disableExtendRowFullWidth
+        loading={loading}
       />
     </div>
   );
 };
 
-// export default () => <WithAuthorization Children={Users} isRoot={true} />;
 export default Users;

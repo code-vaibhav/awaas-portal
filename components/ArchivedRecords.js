@@ -5,15 +5,18 @@ import { Input } from "antd";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { authState, langState } from "@/utils/atom";
 import text from "@/text.json";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
+import { checkAuth } from "@/utils/auth";
 
 const ArchivedRecords = () => {
   const [records, setRecords] = useState([]);
   const [id, setId] = useState("");
   const t = text[useRecoilValue(langState)];
-  const auth = useRecoilValue(authState);
+  const [auth, setAuth] = useRecoilState(authState);
+  const [loading, setLoading] = useState(false);
 
   const fetchRecords = () => {
+    setLoading(true);
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/archive/all`, {
       method: "GET",
       credentials: "include",
@@ -21,7 +24,7 @@ const ArchivedRecords = () => {
         Authorization: `Bearer ${auth?.token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           setRecords(data.message);
@@ -29,7 +32,8 @@ const ArchivedRecords = () => {
           console.error(data.message);
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   };
 
   useEffect(fetchRecords, []);
@@ -100,6 +104,7 @@ const ArchivedRecords = () => {
         autoHeight
         getRowClassName={() => "row"}
         slots={{ toolbar: GridToolbar }}
+        loading={loading}
       />
     </div>
   );

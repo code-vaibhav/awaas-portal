@@ -3,7 +3,6 @@
 import { Typography } from "@mui/material";
 import { langState } from "@/utils/atom";
 import text from "@/text.json";
-import WithAuthorization from "@/components/WithAuth";
 import { useRecoilValue } from "recoil";
 import ArchivedRecords from "@/components/ArchivedRecords";
 import PendingRecords from "@/components/PendingRecords";
@@ -37,5 +36,4 @@ const Records = () => {
   );
 };
 
-// export default () => <WithAuthorization Children={Records} isRoot={false} />;
 export default Records;

@@ -6,6 +6,6 @@ export const langState = atom({
 });
 
 export const authState = atom({
-  key: "userState",
+  key: "authState",
   default: null,
 });

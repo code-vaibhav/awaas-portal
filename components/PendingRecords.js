@@ -10,21 +10,24 @@ import CheckIcon from "@mui/icons-material/Check";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { authState, langState } from "@/utils/atom";
 import text from "@/text.json";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { Button } from "@mui/material";
 import EditRecord from "./EditRecord";
+import { checkAuth } from "@/utils/auth";
 
 const PendingRecords = () => {
   const [records, setRecords] = useState([]);
   const [id, setId] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const t = text[useRecoilValue(langState)];
-  const auth = useRecoilValue(authState);
+  const [auth, setAuth] = useRecoilState(authState);
   const [selected, setSelected] = useState([]);
   const [record, setRecord] = useState();
   const [open, setOpen] = useState(false);
 
   const fetchRecords = () => {
+    setLoading(true);
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/all`, {
       method: "GET",
       credentials: "include",
@@ -32,7 +35,7 @@ const PendingRecords = () => {
         Authorization: `Bearer ${auth?.token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           setRecords(data.message);
@@ -40,7 +43,8 @@ const PendingRecords = () => {
           console.error(data.message);
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   };
 
   useEffect(fetchRecords, []);
@@ -57,7 +61,7 @@ const PendingRecords = () => {
         },
       }
     )
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Record Deleted"]);
@@ -88,7 +92,7 @@ const PendingRecords = () => {
       },
       body: JSON.stringify({ ids: ids.length ? ids : selected }),
     })
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Record Alloted"]);
@@ -202,32 +206,34 @@ const PendingRecords = () => {
             >
               {t["Edit"]}
             </Button>
-            <Popconfirm
-              placement="topLeft"
-              title={t["Delete Record"]}
-              okText={t["Yes"]}
-              cancelText={t["No"]}
-              onConfirm={() => deleteRecord(params.row.id)}
-            >
-              <Button
-                variant="outlined"
-                color="warning"
-                disabled={!!processing}
-                startIcon={
-                  processing === `delete_${params.row.id}` ? (
-                    <Spin
-                      indicator={
-                        <LoadingOutlined style={{ fontSize: 24 }} spin />
-                      }
-                    />
-                  ) : (
-                    <DeleteIcon fontSize="inherit" />
-                  )
-                }
+            {auth.role === "admin" && (
+              <Popconfirm
+                placement="topLeft"
+                title={t["Delete Record"]}
+                okText={t["Yes"]}
+                cancelText={t["No"]}
+                onConfirm={() => deleteRecord(params.row.id)}
               >
-                {t["Delete"]}
-              </Button>
-            </Popconfirm>
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  disabled={!!processing}
+                  startIcon={
+                    processing === `delete_${params.row.id}` ? (
+                      <Spin
+                        indicator={
+                          <LoadingOutlined style={{ fontSize: 24 }} spin />
+                        }
+                      />
+                    ) : (
+                      <DeleteIcon fontSize="inherit" />
+                    )
+                  }
+                >
+                  {t["Delete"]}
+                </Button>
+              </Popconfirm>
+            )}
           </Space>
         </Space>
       ),
@@ -300,6 +306,7 @@ const PendingRecords = () => {
         getRowClassName={() => "row"}
         slots={{ toolbar: GridToolbar }}
         rowSelection={false}
+        loading={loading}
       />
     </div>
   );

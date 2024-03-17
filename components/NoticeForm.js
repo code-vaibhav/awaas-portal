@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Form, Input, Button, Spin, Upload, Modal } from "antd";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { authState, langState } from "@/utils/atom";
 import text from "@/text.json";
 import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 import { SuccessMessage, ErrorMessage } from "./Notification";
+import { checkAuth } from "@/utils/auth";
 
 export default function NoticeForm({
   mode,
@@ -15,7 +16,7 @@ export default function NoticeForm({
 }) {
   const [processing, setProcessing] = useState(false);
   const t = text[useRecoilValue(langState)];
-  const auth = useRecoilValue(authState);
+  const [auth, setAuth] = useRecoilState(authState);
 
   const addNotice = (values) => {
     setProcessing(true);
@@ -39,7 +40,7 @@ export default function NoticeForm({
       },
       body: formData,
     })
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Notice Added"]);
@@ -68,9 +69,9 @@ export default function NoticeForm({
         "Content-Type": "application/json",
         Authorization: `Bearer ${auth?.token}`,
       },
-      body: JSON.stringify({ id: values.id, data: values }),
+      body: JSON.stringify({ id: notice.id, data: values }),
     })
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Notice Updated"]);
