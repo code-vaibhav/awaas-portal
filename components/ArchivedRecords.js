@@ -1,42 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Input } from "antd";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { authState, langState } from "@/utils/atom";
+import { langState } from "@/utils/atom";
 import text from "@/text.json";
-import { useRecoilValue, useRecoilState } from "recoil";
-import { checkAuth } from "@/utils/auth";
+import { useRecoilValue } from "recoil";
 
-const ArchivedRecords = () => {
-  const [records, setRecords] = useState([]);
+const ArchivedRecords = ({ records, loading }) => {
   const [id, setId] = useState("");
   const t = text[useRecoilValue(langState)];
-  const [auth, setAuth] = useRecoilState(authState);
-  const [loading, setLoading] = useState(false);
-
-  const fetchRecords = () => {
-    setLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/archive/all`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        Authorization: `Bearer ${auth?.token}`,
-      },
-    })
-      .then((res) => checkAuth(res, setAuth))
-      .then((data) => {
-        if (data.status) {
-          setRecords(data.message);
-        } else {
-          console.error(data.message);
-        }
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(fetchRecords, []);
 
   const columns = [
     {
@@ -78,6 +51,17 @@ const ArchivedRecords = () => {
       field: "applicationDate",
       headerName: t["Application Date"],
       flex: 1,
+      valueGetter: (params) => {
+        const [day, month, year] = params.row.applicationDate.split("/");
+        const formattedDate = new Date(
+          `${year}-${month}-${day}`
+        ).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+        return formattedDate;
+      },
     },
   ];
 

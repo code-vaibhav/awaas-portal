@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Popconfirm, Space, Input, Spin, Checkbox } from "antd";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -15,39 +15,14 @@ import { Button } from "@mui/material";
 import EditRecord from "./EditRecord";
 import { checkAuth } from "@/utils/auth";
 
-const PendingRecords = () => {
-  const [records, setRecords] = useState([]);
+const PendingRecords = ({ records, fetchRecords, loading }) => {
   const [id, setId] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [loading, setLoading] = useState(false);
   const t = text[useRecoilValue(langState)];
   const [auth, setAuth] = useRecoilState(authState);
   const [selected, setSelected] = useState([]);
   const [record, setRecord] = useState();
   const [open, setOpen] = useState(false);
-
-  const fetchRecords = () => {
-    setLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/all`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        Authorization: `Bearer ${auth?.token}`,
-      },
-    })
-      .then((res) => checkAuth(res, setAuth))
-      .then((data) => {
-        if (data.status) {
-          setRecords(data.message);
-        } else {
-          console.error(data.message);
-        }
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(fetchRecords, []);
 
   const deleteRecord = (id) => {
     setProcessing(`delete_${id}`);
@@ -111,7 +86,7 @@ const PendingRecords = () => {
 
   const columns = [
     {
-      field: "rank",
+      field: "checkbox",
       headerName: "",
       renderCell: (params) => (
         <Checkbox
@@ -158,8 +133,17 @@ const PendingRecords = () => {
     {
       field: "applicationDate",
       headerName: t["Application Date"],
-      valueGetter: (params) =>
-        new Date(params.row.applicationDate).toLocaleDateString("en-GB"),
+      valueGetter: (params) => {
+        const [day, month, year] = params.row.applicationDate.split("/");
+        const formattedDate = new Date(
+          `${year}-${month}-${day}`
+        ).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+        return formattedDate;
+      },
     },
     {
       field: "action",

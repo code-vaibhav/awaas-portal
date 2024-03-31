@@ -17,7 +17,7 @@ export default function Status() {
   const fetchStatus = (values) => {
     setProcessing(true);
     fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/info?id=${values.id}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/info?id=${values.id}&mobile=${values.mobile}`,
       {
         method: "GET",
         credentials: "include",
@@ -65,6 +65,14 @@ export default function Status() {
           >
             <Input />
           </Form.Item>
+          <Form.Item
+            style={{ width: "max-content" }}
+            label={t["Mobile No"]}
+            name="mobile"
+            required
+          >
+            <Input />
+          </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" disabled={processing}>
               {processing && (
@@ -103,7 +111,9 @@ export default function Status() {
               {
                 key: 5,
                 label: t["Application Date"],
-                children: application["applicationDate"],
+                children: new Date(
+                  application["applicationDate"]
+                ).toLocaleDateString("en-GB"),
               },
               {
                 key: 6,
@@ -119,6 +129,11 @@ export default function Status() {
                 key: 8,
                 label: t["Current Waiting"],
                 children: application["currentWaiting"],
+              },
+              {
+                key: 8,
+                label: t["Mobile No"],
+                children: application["mobile"],
               },
             ]}
             style={{

@@ -46,7 +46,7 @@ const Users = () => {
   };
 
   useEffect(() => {
-    if (isRoot && auth.role !== "admin") {
+    if (auth.role !== "admin") {
       WarningMessage(t["Access Denied"]);
       router.push("/admin/records");
     }

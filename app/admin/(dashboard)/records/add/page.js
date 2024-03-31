@@ -21,6 +21,7 @@ import * as XLSX from "xlsx";
 import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 import { useRouter } from "next/navigation";
 import { checkAuth } from "@/utils/auth";
+import { waitingLists } from "../page";
 
 const AddRecords = () => {
   const [processing, setProcessing] = useState(false);
@@ -28,53 +29,22 @@ const AddRecords = () => {
   const [auth, setAuth] = useRecoilState(authState);
   const t = text[lang];
   const form = useRef();
-  const rankMap = {
-    [t["Inspector"]]: "inspector",
-    [t["SI"]]: "si",
-    [t["Stenos"]]: "stenos",
-    [t["Constable"]]: "constable",
-    [t["HC"]]: "hc",
-    [t["4th Class Follower"]]: "follower",
-  };
+  const rankMap = Object.fromEntries(
+    Object.keys(waitingLists)
+      .map((key) => waitingLists[key].map((r) => [text["hi"][r], key]))
+      .flat()
+  );
+  // const rankMap = {
+  //   [text["hi"]["inspector"]]: "inspector",
+  //   [text["hi"]["si"]]: "si",
+  //   [text["hi"]["stenos"]]: "stenos",
+  //   [text["hi"]["constable"]]: "constable",
+  //   [text["hi"]["hc"]]: "hc",
+  //   [text["hi"]["follower"]]: "follower",
+  // };
   const router = useRouter();
 
-  const addRecords = (data) => {
-    setProcessing(true);
-
-    let jsonData;
-    if (data.method === "sheet") {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        const workbook = XLSX.read(e.target.result, {
-          type: "array",
-        });
-
-        // Assuming your Excel file has a sheet named 'Sheet1'
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-
-        // Parse the sheet data into a JSON object
-        jsonData = XLSX.utils.sheet_to_json(sheet).map((record) => ({
-          name: record[t["Name"]],
-          officerRank: record[t["Rank"]],
-          pno: record[t["PNO"]],
-          badgeNumber: record[t["Badge No"]],
-          mobile: record[t["Mobile No"]],
-          registrationNumber: record[t[`Registration No`]],
-          applicationDate: record[t[`Application Date`]],
-          rank: rankMap(record[t["Rank"]]),
-        }));
-      };
-
-      reader.readAsArrayBuffer(data.excel_sheet.originFileObj);
-    } else {
-      jsonData = data.records.map((record) => ({
-        ...record,
-        officerRank: t[record.rank],
-      }));
-    }
-
+  const addRecords = (jsonData) =>
     fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/create/many`,
       {
@@ -103,6 +73,60 @@ const AddRecords = () => {
         ErrorMessage(t["Error Adding Records"]);
       })
       .finally(() => setProcessing(false));
+
+  const handleAddRecords = (data) => {
+    setProcessing(true);
+
+    let jsonData;
+    if (data.method === "sheet") {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const workbook = XLSX.read(e.target.result, {
+          type: "array",
+        });
+
+        // Assuming your Excel file has a sheet named 'Sheet1'
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        // Parse the sheet data into a JSON object
+        jsonData = XLSX.utils
+          .sheet_to_json(sheet, {
+            dateNF: "dd/mm/yyyy",
+            raw: false,
+            cellDates: true,
+            cellDated: function (cell, date) {
+              if (XLSX.SSF.is_date(date)) {
+                return new Date(date).toLocaleDateString("en-GB");
+              }
+              return cell.w;
+            },
+          })
+          .map((record) => ({
+            name: record[text["hi"]["Name"]],
+            officerRank: record[text["hi"]["Rank"]],
+            pno: record[text["hi"]["PNO"]],
+            badgeNumber: record[text["hi"]["Badge No"]],
+            mobile: record[text["hi"]["Mobile No"]],
+            registrationNumber: record[text["hi"][`Registration No`]],
+            applicationDate: record[text["hi"][`Application Date`]],
+            rank: rankMap[record[text["hi"]["Rank"]]],
+          }));
+
+        addRecords(jsonData);
+      };
+
+      reader.readAsArrayBuffer(data.excel_sheet.file);
+    } else {
+      jsonData = data.records.map((record) => ({
+        ...record,
+        rank: rankMap(text["hi"][record.rank]),
+        officerRank: t[record.rank],
+      }));
+
+      addRecords(jsonData);
+    }
   };
 
   const dummyRequest = ({ file, onSuccess }) => {
@@ -120,7 +144,7 @@ const AddRecords = () => {
       <Form
         ref={form}
         name="add_records"
-        onFinish={addRecords}
+        onFinish={handleAddRecords}
         autoComplete="off"
       >
         <Space

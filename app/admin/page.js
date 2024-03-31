@@ -21,7 +21,6 @@ export default function Login() {
       return;
     }
 
-    console.log(params);
     if (localStorage.getItem("auth")) {
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check`, {
         method: "GET",
