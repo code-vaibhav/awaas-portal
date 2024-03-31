@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { Button, Form, Input, Typography } from "antd";
+import { useEffect, Suspense } from "react";
+import { Button, Form, Input, Typography, Spin } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { logIn } from "@/utils/auth";
 import { authState, langState } from "@/utils/atom";
@@ -65,46 +65,48 @@ export default function Login() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        flexDirection: "column",
-      }}
-    >
-      <Typography.Title level={3} style={{ marginBottom: 24 }}>
-        {t["Login"]}
-      </Typography.Title>
-      <Form
-        name="login"
-        style={{ maxWidth: 500, width: "90%" }}
-        onFinish={onFinish}
-        autoComplete="off"
+    <Suspense fallback={<Spin spinning={true} fullscreen />}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          flexDirection: "column",
+        }}
       >
-        <Form.Item
-          label={t["Email"]}
-          name="email"
-          required
-          style={{ marginBottom: 16 }}
+        <Typography.Title level={3} style={{ marginBottom: 24 }}>
+          {t["Login"]}
+        </Typography.Title>
+        <Form
+          name="login"
+          style={{ maxWidth: 500, width: "90%" }}
+          onFinish={onFinish}
+          autoComplete="off"
         >
-          <Input lang={lang} type="email" />
-        </Form.Item>
+          <Form.Item
+            label={t["Email"]}
+            name="email"
+            required
+            style={{ marginBottom: 16 }}
+          >
+            <Input lang={lang} type="email" />
+          </Form.Item>
 
-        <Form.Item
-          label={t["Password"]}
-          name="password"
-          required
-          style={{ marginBottom: 24 }}
-        >
-          <Input.Password lang={lang} />
-        </Form.Item>
+          <Form.Item
+            label={t["Password"]}
+            name="password"
+            required
+            style={{ marginBottom: 24 }}
+          >
+            <Input.Password lang={lang} />
+          </Form.Item>
 
-        <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
-          {t["Submit"]}
-        </Button>
-      </Form>
-    </div>
+          <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
+            {t["Submit"]}
+          </Button>
+        </Form>
+      </div>
+    </Suspense>
   );
 }
