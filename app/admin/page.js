@@ -8,7 +8,7 @@ import { authState, langState } from "@/utils/atom";
 import { useRecoilValue, useRecoilState } from "recoil";
 import text from "@/text.json";
 
-export default function Login() {
+function Login() {
   const router = useRouter();
   const params = useSearchParams();
   const lang = useRecoilValue(langState);
@@ -65,48 +65,52 @@ export default function Login() {
   };
 
   return (
-    <Suspense fallback={<Spin spinning={true} fullscreen />}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          flexDirection: "column",
-        }}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        flexDirection: "column",
+      }}
+    >
+      <Typography.Title level={3} style={{ marginBottom: 24 }}>
+        {t["Login"]}
+      </Typography.Title>
+      <Form
+        name="login"
+        style={{ maxWidth: 500, width: "90%" }}
+        onFinish={onFinish}
+        autoComplete="off"
       >
-        <Typography.Title level={3} style={{ marginBottom: 24 }}>
-          {t["Login"]}
-        </Typography.Title>
-        <Form
-          name="login"
-          style={{ maxWidth: 500, width: "90%" }}
-          onFinish={onFinish}
-          autoComplete="off"
+        <Form.Item
+          label={t["Email"]}
+          name="email"
+          required
+          style={{ marginBottom: 16 }}
         >
-          <Form.Item
-            label={t["Email"]}
-            name="email"
-            required
-            style={{ marginBottom: 16 }}
-          >
-            <Input lang={lang} type="email" />
-          </Form.Item>
+          <Input lang={lang} type="email" />
+        </Form.Item>
 
-          <Form.Item
-            label={t["Password"]}
-            name="password"
-            required
-            style={{ marginBottom: 24 }}
-          >
-            <Input.Password lang={lang} />
-          </Form.Item>
+        <Form.Item
+          label={t["Password"]}
+          name="password"
+          required
+          style={{ marginBottom: 24 }}
+        >
+          <Input.Password lang={lang} />
+        </Form.Item>
 
-          <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
-            {t["Submit"]}
-          </Button>
-        </Form>
-      </div>
-    </Suspense>
+        <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
+          {t["Submit"]}
+        </Button>
+      </Form>
+    </div>
   );
 }
+
+export default () => (
+  <Suspense fallback={<Spin spinning={true} fullscreen />}>
+    <Login />
+  </Suspense>
+);
