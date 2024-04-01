@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { authState } from "@/utils/atom";
 import { useRouter } from "next/navigation";
 import { Spin } from "antd";
 
 const WithAuthorization = ({ children }) => {
-  const auth = useRecoilValue(authState);
+  const [auth, setAuth] = useRecoilState(authState);
   const router = useRouter();
 
   useEffect(() => {
