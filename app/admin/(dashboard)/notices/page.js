@@ -199,6 +199,12 @@ const Notices = () => {
         autoHeight
         getRowClassName={() => "row"}
         slots={{ toolbar: GridToolbar }}
+        slotProps={{
+          toolbar: {
+            printOptions: { disableToolbarButton: true },
+            csvOptions: { disableToolbarButton: true },
+          },
+        }}
         disableExtendRowFullWidth
         loading={loading}
       />

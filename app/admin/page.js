@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form, Input, Typography } from "antd";
 import { useRouter } from "next/navigation";
 import { logIn } from "@/utils/auth";
@@ -14,6 +14,7 @@ export default function Login() {
   const lang = useRecoilValue(langState);
   const [auth, setAuth] = useRecoilState(authState);
   const t = text[lang];
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (auth) {
@@ -46,6 +47,7 @@ export default function Login() {
   }, []);
 
   const onFinish = async (values) => {
+    setProcessing(true);
     try {
       const user = await logIn(values.email, values.password);
       const idTokenResult = await user.getIdTokenResult();
@@ -65,6 +67,8 @@ export default function Login() {
       router.push("/admin/records");
     } catch (err) {
       console.error(err);
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -105,7 +109,12 @@ export default function Login() {
           <Input.Password lang={lang} />
         </Form.Item>
 
-        <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
+        <Button
+          loading={processing}
+          type="primary"
+          htmlType="submit"
+          style={{ marginLeft: "50%", transform: "translateX(-50%)" }}
+        >
           {t["Submit"]}
         </Button>
       </Form>

@@ -2,7 +2,7 @@ import { atom } from "recoil";
 
 export const langState = atom({
   key: "langState",
-  default: "en",
+  default: "hi",
 });
 
 export const authState = atom({

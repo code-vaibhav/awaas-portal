@@ -98,6 +98,7 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
         />
       ),
       width: 6,
+      disableExport: true,
     },
     {
       field: "registrationNumber",
@@ -222,6 +223,7 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
         </Space>
       ),
       width: 250,
+      disableExport: true,
     },
   ];
 
