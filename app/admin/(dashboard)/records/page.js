@@ -82,7 +82,7 @@ const Records = () => {
         items={[
           ...Object.keys(waitingLists).map((key, idx) => ({
             key: idx,
-            label: `${t["Pending"]} List ${idx + 1}`,
+            label: `${t["Pending List"]} ${idx + 1}`,
             children: (
               <PendingRecords
                 records={pendingRecords.filter((record) => record.rank === key)}
@@ -93,7 +93,7 @@ const Records = () => {
           })),
           ...Object.keys(waitingLists).map((key, idx) => ({
             key: Object.keys(waitingLists).length + idx,
-            label: `${t["Alloted"]} List ${idx + 1}`,
+            label: `${t["Alloted List"]} ${idx + 1}`,
             children: (
               <ArchivedRecords
                 records={archivedRecords.filter(

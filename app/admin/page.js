@@ -1,23 +1,23 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
-import { Button, Form, Input, Typography, Spin } from "antd";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { Button, Form, Input, Typography } from "antd";
+import { useRouter } from "next/navigation";
 import { logIn } from "@/utils/auth";
 import { authState, langState } from "@/utils/atom";
 import { useRecoilValue, useRecoilState } from "recoil";
 import text from "@/text.json";
+import { ErrorMessage } from "@/components/Notification";
 
-function Login() {
+export default function Login() {
   const router = useRouter();
-  const params = useSearchParams();
   const lang = useRecoilValue(langState);
   const [auth, setAuth] = useRecoilState(authState);
   const t = text[lang];
 
   useEffect(() => {
     if (auth) {
-      router.push(params.get("redirect") || "/admin/records");
+      router.push("/admin/records");
       return;
     }
 
@@ -30,14 +30,18 @@ function Login() {
             JSON.parse(localStorage.getItem("auth")).token
           }`,
         },
-      }).then((res) => {
-        if (res.status === 401) {
-          localStorage.removeItem("auth");
-        } else {
-          setAuth(JSON.parse(localStorage.getItem("auth")));
-          router.push(params.get("redirect") || "/admin/records");
-        }
-      });
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            localStorage.removeItem("auth");
+          } else {
+            setAuth(JSON.parse(localStorage.getItem("auth")));
+            router.push("/admin/records");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     }
   }, []);
 
@@ -108,9 +112,3 @@ function Login() {
     </div>
   );
 }
-
-export default () => (
-  <Suspense fallback={<Spin spinning={true} fullscreen />}>
-    <Login />
-  </Suspense>
-);
