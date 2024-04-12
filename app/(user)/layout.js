@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Layout, Menu, Typography, Flex, Space, Drawer } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
 import Link from "next/link";
@@ -23,11 +23,16 @@ const RootLayout = ({ children }) => {
   const currentURL = usePathname();
   const lang = useRecoilValue(langState);
   const t = text[lang];
+  const [client, setClient] = useState(false);
+
+  useEffect(() => {
+    setClient(true);
+  }, []);
 
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
 
   const menuItems =
-    window.innerWidth > 768
+    client && window.innerWidth > 768
       ? [
           {
             key: "1",

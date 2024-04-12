@@ -13,8 +13,10 @@ export default function Home() {
   const [notices, setNotices] = useState([]);
   const lang = useRecoilValue(langState);
   const t = text[lang];
+  const [client, setClient] = useState(false);
 
   useEffect(() => {
+    setClient(true);
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/all`, {
       method: "GET",
       credentials: "include",
@@ -36,20 +38,20 @@ export default function Home() {
         style={{ backgroundColor: "#d5f2fe" }}
         align="center"
         justify="space-evenly"
-        vertical={window.innerWidth < 768}
+        vertical={client && window.innerWidth < 768}
       >
         <img
           src="1.png"
           alt="landing_image"
           style={{
-            width: window.innerWidth < 768 ? "70%" : "40%",
-            paddingTop: window.innerWidth < 768 ? "40px" : 0,
+            width: client && window.innerWidth < 768 ? "70%" : "40%",
+            paddingTop: client && window.innerWidth < 768 ? "40px" : 0,
             maxWidth: "500px",
           }}
         />
         <div
           style={{
-            marginBottom: window.innerWidth < 768 ? "10%" : "5%",
+            marginBottom: client && window.innerWidth < 768 ? "10%" : "5%",
             textAlign: "center",
           }}
         >
