@@ -87,7 +87,8 @@
     "Delete Notice": "Are you sure to delete this notice?",
     "Mark Alloted": "Mark Alloted",
     "Mark Selected Alloted": "Mark Selected Alloted",
-    "User Delete": "Are you sure to delete this user"
+    "User Delete": "Are you sure to delete this user",
+    "tagline": "Secure homes for officers, ensuring peace of mind always"
   },
   "hi": {
     "Awaas Portal": "आवास पोर्टल",
@@ -131,7 +132,7 @@
     "Login": "लॉगिन",
     "Add User": "उपयोगकर्ता जोड़ें",
     "Role": "भूमिका",
-    "Enter PNO or Registration No": "पीएनओ या रजिस्ट्रेशन नंबर दर्ज करें",
+    "Enter PNO or Registration No": "पीएनओ या रजिस्ट्रेशन नंबर",
     "inspector": "निरीक्षक",
     "si": "मु0आ0",
     "stenos": "हे0का0",
@@ -176,6 +177,7 @@
     "Delete Notice": "क्या आप इस सूचना को हटाने के लिए निश्चित हैं?",
     "Mark Alloted": "अनुमत करें",
     "Mark Selected Alloted": "चयनित को अनुमत करें",
-    "User Delete": "क्या आप इस उपयोगकर्ता को हटाने के लिए निश्चित हैं?"
+    "User Delete": "क्या आप इस उपयोगकर्ता को हटाने के लिए निश्चित हैं?",
+    "tagline": "अधिकारियों के लिए सुरक्षित घर, हमेशा चिंता मुक्ति की गारंटी"
   }
 }

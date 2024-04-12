@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { List, Spin } from "antd";
+import { List, Spin, Flex, Collapse } from "antd";
 import { Typography } from "@mui/material";
 import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import { AuditOutlined, CreditCardOutlined } from "@ant-design/icons";
 import text from "@/text.json";
+import { DownOutlined } from "@ant-design/icons";
 
 export default function Home() {
   const [notices, setNotices] = useState([]);
@@ -31,6 +32,36 @@ export default function Home() {
 
   return notices.length ? (
     <div>
+      <Flex
+        style={{ backgroundColor: "#d5f2fe" }}
+        align="center"
+        justify="space-evenly"
+        vertical={window.innerWidth < 768}
+      >
+        <img
+          src="1.png"
+          alt="landing_image"
+          style={{
+            width: window.innerWidth < 768 ? "70%" : "40%",
+            paddingTop: window.innerWidth < 768 ? "40px" : 0,
+            maxWidth: "500px",
+          }}
+        />
+        <div
+          style={{
+            marginBottom: window.innerWidth < 768 ? "10%" : "5%",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h3" component="h3" align="center" m={5}>
+            {t["Awaas Portal"]}
+          </Typography>
+          <Typography variant="h5" component="h5">
+            {t["tagline"]}
+          </Typography>
+        </div>
+      </Flex>
+
       <Typography variant="h4" align="center" my={4}>
         {t["Notices"]}
       </Typography>

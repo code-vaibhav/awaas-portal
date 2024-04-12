@@ -56,6 +56,7 @@ export default function Status() {
           onFinish={fetchStatus}
           autoComplete="off"
           layout="inline"
+          style={{ justifyContent: "center" }}
         >
           <Form.Item
             style={{ width: "max-content" }}

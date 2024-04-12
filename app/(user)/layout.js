@@ -26,28 +26,47 @@ const RootLayout = ({ children }) => {
 
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
 
-  const menuItems = [
-    {
-      key: "1",
-      label: <Link href="/">{t["Home"]}</Link>,
-      icon: <HomeIcon />,
-    },
-    {
-      key: "2",
-      label: <Link href="/status">{t["Check Allocation Status"]}</Link>,
-      icon: <InfoIcon />,
-    },
-    {
-      key: "3",
-      label: <Link href="/contact">{t["Contact"]}</Link>,
-      icon: <PhoneIcon />,
-    },
-    {
-      key: "4",
-      label: <Link href="/admin">{t["Admin"]}</Link>,
-      icon: <AdminPanelSettingsIcon />,
-    },
-  ];
+  const menuItems =
+    window.innerWidth > 768
+      ? [
+          {
+            key: "1",
+            label: <Link href="/">{t["Home"]}</Link>,
+            icon: <HomeIcon />,
+          },
+          {
+            key: "2",
+            label: <Link href="/status">{t["Check Allocation Status"]}</Link>,
+            icon: <InfoIcon />,
+          },
+          {
+            key: "3",
+            label: <Link href="/contact">{t["Contact"]}</Link>,
+            icon: <PhoneIcon />,
+          },
+          {
+            key: "4",
+            label: <Link href="/admin">{t["Admin"]}</Link>,
+            icon: <AdminPanelSettingsIcon />,
+          },
+        ]
+      : [
+          {
+            key: "1",
+            label: <Link href="/">{t["Home"]}</Link>,
+            icon: <HomeIcon />,
+          },
+          {
+            key: "2",
+            label: <Link href="/status">{t["Check Allocation Status"]}</Link>,
+            icon: <InfoIcon />,
+          },
+          {
+            key: "3",
+            label: <Link href="/contact">{t["Contact"]}</Link>,
+            icon: <PhoneIcon />,
+          },
+        ];
 
   return (
     <Layout
@@ -99,8 +118,9 @@ const RootLayout = ({ children }) => {
         style={{
           width: "max-content",
           background: "#001529",
-          body: { padding: 0 },
         }}
+        headerStyle={{ paddingBottom: 0 }}
+        bodyStyle={{ paddingTop: 0 }}
         closeIcon={<CloseIcon style={{ color: "white" }} />}
       >
         <Space direction="vertical" align="center">
