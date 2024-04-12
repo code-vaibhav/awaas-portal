@@ -43,7 +43,7 @@ export default function Status() {
   };
 
   return (
-    <div>
+    <div style={{ width: "95%", margin: "auto" }}>
       <Typography variant="h4" align="center" gutterBottom my={4}>
         {t["Check Allocation Status"]}
       </Typography>
@@ -55,27 +55,34 @@ export default function Status() {
           name="status"
           onFinish={fetchStatus}
           autoComplete="off"
-          layout="inline"
-          style={{ justifyContent: "center" }}
+          layout="horizontal"
+          labelCol={{ span: 12 }}
+          wrapperCol={{ span: 12 }}
+          style={{
+            justifyContent: "center",
+            border: "1px solid black",
+            padding: "30px 30px 0 30px",
+            borderRadius: "10px",
+          }}
+          labelAlign="left"
         >
           <Form.Item
-            style={{ width: "max-content" }}
             label={t["Enter PNO or Registration No"]}
             name="id"
             required
           >
             <Input />
           </Form.Item>
-          <Form.Item
-            style={{ width: "max-content" }}
-            label={t["Mobile No"]}
-            name="mobile"
-            required
-          >
+          <Form.Item label={t["Mobile No"]} name="mobile" required>
             <Input />
           </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" disabled={processing}>
+          <Form.Item wrapperCol={{ span: 24 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              disabled={processing}
+              style={{ marginLeft: "50%", transform: "translateX(-50%)" }}
+            >
               {processing && (
                 <Spin
                   indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
@@ -87,7 +94,11 @@ export default function Status() {
         </Form>
         {application && (
           <Descriptions
-            title={t["Application Info"]}
+            title={
+              <Typography variant="h5" align="center">
+                {t["Application Info"]}
+              </Typography>
+            }
             items={[
               {
                 key: 1,
@@ -107,7 +118,7 @@ export default function Status() {
               {
                 key: 4,
                 label: t["Rank"],
-                children: application["rank"],
+                children: application["officerRank"],
               },
               {
                 key: 5,
@@ -132,15 +143,17 @@ export default function Status() {
                 children: application["currentWaiting"],
               },
               {
-                key: 8,
+                key: 9,
                 label: t["Mobile No"],
                 children: application["mobile"],
               },
             ]}
             style={{
-              width: "80%",
+              width: "100%",
               margin: "auto",
+              marginTop: "30px",
             }}
+            bordered
           />
         )}
       </Space>

@@ -32,7 +32,7 @@ const WithAuthorization = ({ children }) => {
         }
       });
     }
-  }, [auth]);
+  }, []);
 
   return auth ? children : <Spin spinning={true} fullscreen />;
 };
