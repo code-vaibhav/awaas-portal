@@ -18,15 +18,15 @@ const errorColor = {
 };
 
 export const WarningMessage = function (message) {
-  toast.warn(message, { ...warningColor, autoClose: 3000 });
+  toast.warn(message, { ...warningColor, autoClose: 5000 });
 };
 
 export const SuccessMessage = function (message) {
-  toast.success(message, { ...successColor, autoClose: 3000 });
+  toast.success(message, { ...successColor, autoClose: 5000 });
 };
 
 export const ErrorMessage = function (message) {
-  toast.error(message, { ...errorColor, autoClose: 3000 });
+  toast.error(message, { ...errorColor, autoClose: 5000 });
 };
 
 export default function Notification() {

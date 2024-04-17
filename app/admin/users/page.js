@@ -51,7 +51,7 @@ const Users = () => {
       router.push("/admin/records");
     }
 
-    fetchUsers;
+    fetchUsers();
   }, []);
 
   const deleteUser = (id) => {
@@ -176,7 +176,7 @@ const Users = () => {
         style={{ color: "#fff", marginBottom: "10px" }}
         layout="inline"
       >
-        <Form.Item label={t["Email"]} name="email" required>
+        <Form.Item label={t["Username"]} name="email" required>
           <Input lang={lang} type="email" />
         </Form.Item>
         <Form.Item label={t["Password"]} name="password" required>

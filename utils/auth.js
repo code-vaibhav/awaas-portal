@@ -7,7 +7,12 @@ export const auth = getAuth(app);
 export const logIn = async (email, password) => {
   try {
     const creds = await signInWithEmailAndPassword(auth, email, password);
-    SuccessMessage("Successfully Logged in");
+    SuccessMessage(
+      "Last Login: " +
+        new Date(creds.user.metadata.lastSignInTime).toLocaleDateString() +
+        " " +
+        new Date(creds.user.metadata.lastSignInTime).toLocaleTimeString()
+    );
     return creds.user;
   } catch (error) {
     console.error("Login failed:", error.message);

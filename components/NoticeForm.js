@@ -32,7 +32,7 @@ export default function NoticeForm({
       })
     );
 
-    fetch("${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/general", {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/general`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -107,8 +107,8 @@ export default function NoticeForm({
     >
       <Form
         name="add_notice"
-        labelCol={{ xs: { span: 24 }, sm: { span: 6 } }}
-        wrapperCol={{ xs: { span: 24 }, sm: { span: 18 } }}
+        labelCol={{ xs: { span: 24 }, sm: { span: 8 } }}
+        wrapperCol={{ xs: { span: 24 }, sm: { span: 16 } }}
         onFinish={mode === "add" ? addNotice : editNotice}
         autoComplete="off"
         initialValues={mode === "edit" ? notice : null}

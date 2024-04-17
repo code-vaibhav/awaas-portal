@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Form, Input, Typography } from "antd";
+import {
+  Button,
+  Container,
+  TextField,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import { useRouter } from "next/navigation";
 import { logIn } from "@/utils/auth";
 import { authState, langState } from "@/utils/atom";
@@ -15,6 +21,8 @@ export default function Login() {
   const [auth, setAuth] = useRecoilState(authState);
   const t = text[lang];
   const [processing, setProcessing] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (auth) {
@@ -46,10 +54,10 @@ export default function Login() {
     }
   }, []);
 
-  const onFinish = async (values) => {
+  const performLogin = async () => {
     setProcessing(true);
     try {
-      const user = await logIn(values.email, values.password);
+      const user = await logIn(email, password);
       const idTokenResult = await user.getIdTokenResult();
       setAuth({
         user: user.email,
@@ -73,51 +81,50 @@ export default function Login() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        flexDirection: "column",
-      }}
-    >
-      <Typography.Title level={3} style={{ marginBottom: 24 }}>
+    <Container component="div" maxWidth="xs" style={{ marginTop: "15vh" }}>
+      <Typography component="h1" variant="h5" align="center">
         {t["Login"]}
-      </Typography.Title>
-      <Form
-        name="login"
-        style={{ maxWidth: 500, width: "90%" }}
-        onFinish={onFinish}
-        autoComplete="off"
-      >
-        <Form.Item
-          label={t["Email"]}
+      </Typography>
+      <form className="login-form" noValidate>
+        <TextField
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          id="email"
+          label={t["Username"]}
           name="email"
+          autoFocus
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
           required
-          style={{ marginBottom: 16 }}
-        >
-          <Input lang={lang} type="email" />
-        </Form.Item>
-
-        <Form.Item
-          label={t["Password"]}
+          fullWidth
           name="password"
-          required
-          style={{ marginBottom: 24 }}
-        >
-          <Input.Password lang={lang} />
-        </Form.Item>
-
+          label={t["Password"]}
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
         <Button
-          loading={processing}
-          type="primary"
-          htmlType="submit"
-          style={{ marginLeft: "50%", transform: "translateX(-50%)" }}
+          type="button"
+          fullWidth
+          variant="contained"
+          color="primary"
+          className="login-submit"
+          onClick={() => performLogin()}
+          startIcon={
+            processing ? <CircularProgress size={20} color="inherit" /> : null
+          }
+          disabled={processing || !email || !password}
         >
           {t["Submit"]}
         </Button>
-      </Form>
-    </div>
+      </form>
+    </Container>
   );
 }

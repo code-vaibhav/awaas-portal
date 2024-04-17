@@ -1,17 +1,104 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "antd";
+import { Input, Popconfirm, Checkbox } from "antd";
+import { Button } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { langState } from "@/utils/atom";
+import { langState, authState } from "@/utils/atom";
 import text from "@/text.json";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
+import { SuccessMessage, ErrorMessage } from "@/components/Notification";
+import { LoadingOutlined } from "@ant-design/icons";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const ArchivedRecords = ({ records, loading }) => {
   const [id, setId] = useState("");
   const t = text[useRecoilValue(langState)];
+  const [processing, setProcessing] = useState(false);
+  const [auth, setAuth] = useRecoilState(authState);
+  const [selected, setSelected] = useState([]);
+
+  const deleteRecord = (id) => {
+    setProcessing(id);
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/delete?id=${id}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${auth?.token}`,
+        },
+      }
+    )
+      .then((res) => checkAuth(res, setAuth))
+      .then((data) => {
+        if (data.status) {
+          SuccessMessage(t["Record Deleted"]);
+          fetchRecords();
+          setSelected([]);
+        } else {
+          console.error(data.message);
+          ErrorMessage(t["Error Deleting Record"]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        ErrorMessage(t["Error Deleting Record"]);
+      })
+      .finally(() => setProcessing(false));
+  };
+
+  const clear = (type) => {
+    if (type === "selected") {
+      setProcessing("selected");
+    } else {
+      setProcessing("all");
+    }
+
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/archive/delete`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${auth?.token}`,
+      },
+      body: {
+        ids: type === "selected" ? selected : records.map((r) => r.id),
+      },
+    })
+      .then((res) => checkAuth(res, setAuth))
+      .then((data) => {
+        if (data.status) {
+          SuccessMessage(t["Record Deleted"]);
+          fetchRecords();
+          setSelected([]);
+        } else {
+          console.error(data.message);
+          ErrorMessage(t["Error Deleting Record"]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        ErrorMessage(t["Error Deleting Record"]);
+      })
+      .finally(() => setProcessing(false));
+  };
 
   const columns = [
+    auth.role === "admin" && {
+      field: "checkbox",
+      headerName: "",
+      renderCell: (params) => (
+        <Checkbox
+          onChange={(e) =>
+            selected.find((id) => id === params.row.id)
+              ? setSelected(selected.filter((id) => id !== params.row.id))
+              : setSelected([...selected, params.row.id])
+          }
+        />
+      ),
+      width: 6,
+      disableExport: true,
+    },
     {
       field: "registrationNumber",
       headerName: t["Registration No"],
@@ -63,23 +150,110 @@ const ArchivedRecords = ({ records, loading }) => {
         return formattedDate;
       },
     },
+    auth.role === "admin" && {
+      field: "action",
+      headerName: t["Actions"],
+      renderCell: (params) => (
+        <Popconfirm
+          placement="topLeft"
+          title={t["Delete Record"]}
+          okText={t["Yes"]}
+          cancelText={t["No"]}
+          onConfirm={() => deleteRecord(params.row.id)}
+        >
+          <Button
+            variant="outlined"
+            color="warning"
+            disabled={!!processing}
+            startIcon={
+              processing === params.row.id ? (
+                <Spin
+                  indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
+                />
+              ) : (
+                <DeleteIcon fontSize="inherit" />
+              )
+            }
+          >
+            {t["Delete"]}
+          </Button>
+        </Popconfirm>
+      ),
+      disableExport: true,
+      flex: 1,
+    },
   ];
 
   return (
     <div className="root">
-      <Input
-        placeholder={t["Enter PNO or Registration No"]}
-        value={id}
-        onChange={(e) => setId(e.target.value)}
-        style={{ marginBottom: "5px" }}
-        type="text"
-      />
-      <DataGrid
-        rows={records?.filter(
-          (a) =>
-            String(a.pno).includes(id) ||
-            String(a.registrionNumber).includes(id)
+      <div style={{ display: "flex", marginBottom: "5px", width: "100%" }}>
+        <Input
+          placeholder={t["Enter PNO"]}
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+          type="text"
+          style={{ flex: 1, marginRight: "5px" }}
+        />
+        {auth.role === "admin" && (
+          <Popconfirm
+            placement="topLeft"
+            title={t["Delete Selected"]}
+            okText={t["Yes"]}
+            cancelText={t["No"]}
+            onConfirm={() => clear("selected")}
+          >
+            <Button
+              variant="outlined"
+              color="warning"
+              disabled={!!processing}
+              startIcon={
+                processing === "selected" ? (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }
+                  />
+                ) : (
+                  <DeleteIcon fontSize="inherit" />
+                )
+              }
+            >
+              {t["Clear Selected"]}
+            </Button>
+          </Popconfirm>
         )}
+        {auth.role === "admin" && (
+          <Popconfirm
+            placement="topLeft"
+            title={t["Delete List"]}
+            okText={t["Yes"]}
+            cancelText={t["No"]}
+            onConfirm={() => clear("all")}
+          >
+            <Button
+              variant="outlined"
+              color="warning"
+              disabled={!!processing}
+              startIcon={
+                processing === "all" ? (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }
+                  />
+                ) : (
+                  <DeleteIcon fontSize="inherit" />
+                )
+              }
+            >
+              {t["Clear List"]}
+            </Button>
+          </Popconfirm>
+        )}
+      </div>
+
+      <DataGrid
+        rows={records?.filter((a) => String(a.pno).includes(id))}
         columns={columns}
         getRowId={(row) => row.id}
         showColumnVerticalBorder

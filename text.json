@@ -36,7 +36,7 @@
     "Excel Sheet": "Excel Sheet",
     "Manual Input": "Manual Input",
     "Select Rank": "Select Rank",
-    "Email": "Email",
+    "Username": "Username",
     "Password": "Password",
     "Login": "Login",
     "Add User": "Add User",
@@ -90,7 +90,11 @@
     "User Delete": "Are you sure to delete this user",
     "tagline": "Secure homes for officers, ensuring peace of mind always",
     "No Application Found": "Wrong Mobile or Wrong PNO",
-    "Invalid Mobile Number": "Please enter a valid mobile number"
+    "Invalid Mobile Number": "Please enter a valid mobile number",
+    "Clear List": "Clear List",
+    "Delete List": "Are you sure to clear this list?",
+    "Clear Selected": "Clear Selected",
+    "Delete Selected": "Are you sure to clear selected?"
   },
   "hi": {
     "Awas Portal": "आवास पोर्टल",
@@ -129,7 +133,7 @@
     "Excel Sheet": "एक्सेल शीट",
     "Manual Input": "मैनुअल इनपुट",
     "Select Rank": "श्रेणी का चयन करें",
-    "Email": "ईमेल",
+    "Username": "ईमेल",
     "Password": "पासवर्ड",
     "Login": "लॉगिन",
     "Add User": "उपयोगकर्ता जोड़ें",

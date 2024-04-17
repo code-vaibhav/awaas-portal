@@ -17,11 +17,14 @@ const styles = {
 const contacts = [
   {
     department: "Awas Cell",
-    contact: "Police Lines, Kanpur Nagar coming",
+    contact: "Police Lines, Kanpur Nagar commissionerate",
   },
-  { department: "ACP Lines", contact: "lineacp89@gmail.com" },
-  { department: "DCP Headquarters", contact: "dcphqknr@gmail.com" },
-  { department: "CUG No", contact: "+91 9454400579" },
+  { department: "ACP Lines", contact: "Email: lineacp89@gmail.com" },
+  {
+    department: "DCP Headquarters",
+    contact: "Email: dcphqknr@gmail.com / CUG No: 9454400579",
+  },
+  // { department: "CUG No", contact: "" },
   // { department: "IT", contact: "Michael Lee - 111-222-3333" },
 ];
 
@@ -33,7 +36,14 @@ const ContactPage = () => {
       </Typography>
       <Grid container spacing={3}>
         {contacts.map((contact, index) => (
-          <Grid item xs={12} sm={6} lg={index < 3 ? 4 : 6} key={index}>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            lg={index < 3 ? 4 : 6}
+            key={index}
+            style={{ height: "100%" }}
+          >
             <Card style={styles.card} elevation={3}>
               <CardContent>
                 <Typography
@@ -43,7 +53,11 @@ const ContactPage = () => {
                 >
                   {contact.department}
                 </Typography>
-                <Typography color="textSecondary">{contact.contact}</Typography>
+                {contact.contact.split("/").map((line, index) => (
+                  <Typography key={index} color="textSecondary">
+                    {line}
+                  </Typography>
+                ))}
               </CardContent>
             </Card>
           </Grid>
