@@ -38,6 +38,7 @@ export default function Notification() {
       top={60}
       left="48%"
       zIndex={10000} // Example z-index value, adjust as needed
+      maxWidth="80vw"
     >
       <ToastContainer />
     </Box>

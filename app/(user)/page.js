@@ -7,7 +7,7 @@ import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import { AuditOutlined, CreditCardOutlined } from "@ant-design/icons";
 import text from "@/text.json";
-import { DownOutlined } from "@ant-design/icons";
+import Link from "next/link";
 
 export default function Home() {
   const [notices, setNotices] = useState([]);
@@ -56,10 +56,15 @@ export default function Home() {
           }}
         >
           <Typography variant="h3" component="h3" align="center" m={5}>
-            {t["Awaas Portal"]}
+            {t["Awas Portal"]}
           </Typography>
           <Typography variant="h5" component="h5">
-            {t["tagline"]}
+            <Link
+              href="/status"
+              style={{ color: "#007bff", textDecoration: "none" }}
+            >
+              {t["Check Allocation Status"]}
+            </Link>
           </Typography>
         </div>
       </Flex>

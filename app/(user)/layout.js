@@ -58,17 +58,29 @@ const RootLayout = ({ children }) => {
       : [
           {
             key: "1",
-            label: <Link href="/">{t["Home"]}</Link>,
+            label: (
+              <Link href="/" onClick={() => setIsDrawerVisible(false)}>
+                {t["Home"]}
+              </Link>
+            ),
             icon: <HomeIcon />,
           },
           {
             key: "2",
-            label: <Link href="/status">{t["Check Allocation Status"]}</Link>,
+            label: (
+              <Link href="/status" onClick={() => setIsDrawerVisible(false)}>
+                {t["Check Allocation Status"]}
+              </Link>
+            ),
             icon: <InfoIcon />,
           },
           {
             key: "3",
-            label: <Link href="/contact">{t["Contact"]}</Link>,
+            label: (
+              <Link href="/contact" onClick={() => setIsDrawerVisible(false)}>
+                {t["Contact"]}
+              </Link>
+            ),
             icon: <PhoneIcon />,
           },
         ];
@@ -89,7 +101,7 @@ const RootLayout = ({ children }) => {
           />
           <Link href="/">
             <Title level={3} style={{ color: "white", margin: 0 }}>
-              {t["Awaas Portal"]}
+              {t["Awas Portal"]}
             </Title>
           </Link>
 

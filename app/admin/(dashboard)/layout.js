@@ -31,7 +31,7 @@ export default function DashboardWrapper({ children }) {
           <Flex justify="space-between" align="center">
             <Link href="/">
               <Typography.Title level={3} style={{ color: "white", margin: 0 }}>
-                {t["Awaas Portal"]}
+                {t["Awas Portal"]}
               </Typography.Title>
             </Link>
 

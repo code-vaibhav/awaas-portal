@@ -7,20 +7,10 @@ const LanguageSwitcher = () => {
   return (
     <Space>
       <Button
-        type={lang !== "en" ? "primary" : "default"}
-        onClick={() => setLang("en")}
-        disabled={lang === "en"}
-        style={{ color: "white" }}
+        onClick={() => setLang(lang === "en" ? "hi" : "en")}
+        type="primary"
       >
-        English
-      </Button>
-      <Button
-        type={lang !== "hi" ? "primary" : "default"}
-        disabled={lang === "hi"}
-        onClick={() => setLang("hi")}
-        style={{ color: "white" }}
-      >
-        हिन्दी
+        {lang === "en" ? "हिन्दी" : "English"}
       </Button>
     </Space>
   );

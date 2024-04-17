@@ -15,6 +15,11 @@ export default function Status() {
   const t = text[useRecoilValue(langState)];
 
   const fetchStatus = (values) => {
+    if (values.mobile.length !== 10) {
+      ErrorMessage(t["Invalid Mobile Number"]);
+      return;
+    }
+
     setProcessing(true);
     fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/info?id=${values.id}&mobile=${values.mobile}`,
@@ -31,6 +36,10 @@ export default function Status() {
           SuccessMessage(t["Application Loaded"]);
         } else {
           setApplication(null);
+          if (data.message === "No application found") {
+            ErrorMessage(t["No Application Found"]);
+            return;
+          }
           console.error(data.message);
           ErrorMessage(t["Error Loading Application"]);
         }
@@ -56,8 +65,8 @@ export default function Status() {
           onFinish={fetchStatus}
           autoComplete="off"
           layout="horizontal"
-          labelCol={{ span: 12 }}
-          wrapperCol={{ span: 12 }}
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 16 }}
           style={{
             justifyContent: "center",
             border: "1px solid black",
@@ -66,15 +75,11 @@ export default function Status() {
           }}
           labelAlign="left"
         >
-          <Form.Item
-            label={t["Enter PNO or Registration No"]}
-            name="id"
-            required
-          >
+          <Form.Item label={t["Enter PNO"]} name="id" required>
             <Input />
           </Form.Item>
           <Form.Item label={t["Mobile No"]} name="mobile" required>
-            <Input />
+            <Input type="number" prefix="+91" />
           </Form.Item>
           <Form.Item wrapperCol={{ span: 24 }}>
             <Button

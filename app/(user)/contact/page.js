@@ -15,11 +15,14 @@ const styles = {
 };
 
 const contacts = [
-  { department: "Sales", contact: "John Doe - 123-456-7890" },
-  { department: "Support", contact: "Jane Smith - 987-654-3210" },
-  { department: "HR", contact: "Alex Johnson - 555-555-5555" },
-  { department: "Marketing", contact: "Emily Brown - 222-333-4444" },
-  { department: "IT", contact: "Michael Lee - 111-222-3333" },
+  {
+    department: "Awas Cell",
+    contact: "Police Lines, Kanpur Nagar coming",
+  },
+  { department: "ACP Lines", contact: "lineacp89@gmail.com" },
+  { department: "DCP Headquarters", contact: "dcphqknr@gmail.com" },
+  { department: "CUG No", contact: "+91 9454400579" },
+  // { department: "IT", contact: "Michael Lee - 111-222-3333" },
 ];
 
 const ContactPage = () => {
