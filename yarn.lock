@@ -49,6 +49,13 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
+"@anthro-ai/krutidev-unicode@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@anthro-ai/krutidev-unicode/-/krutidev-unicode-0.1.0.tgz#9927921e1c5e4f9919073d6e99c173a1c46516d1"
+  integrity sha512-OFZpLA+E6Ius9cSsAmzai20XxvZsWXLPVjqncAH029lv2f5dHS/GJ4I/dkfnENj66Nu+MFsoEexW5qLy5Nzkzw==
+  dependencies:
+    replace-string "^3.0.0"
+
 "@babel/code-frame@^7.0.0":
   version "7.23.5"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.23.5.tgz#9009b69a8c602293476ad598ff53e4562e15c244"
@@ -2027,6 +2034,11 @@ regenerator-runtime@^0.14.0:
   version "0.14.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.14.1.tgz#356ade10263f685dda125100cd862c1db895327f"
   integrity sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==
+
+replace-string@^3.0.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/replace-string/-/replace-string-3.1.0.tgz#77a087d88580fbac59851237891aa4b0e283db72"
+  integrity sha512-yPpxc4ZR2makceA9hy/jHNqc7QVkd4Je/N0WRHm6bs3PtivPuPynxE5ejU/mp5EhnCv8+uZL7vhz8rkluSlx+Q==
 
 require-directory@^2.1.1:
   version "2.1.1"

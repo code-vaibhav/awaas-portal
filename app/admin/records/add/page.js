@@ -22,6 +22,7 @@ import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 import { useRouter } from "next/navigation";
 import { checkAuth } from "@/utils/auth";
 import { waitingLists } from "../page";
+import krutidevUnicode from "@anthro-ai/krutidev-unicode";
 
 const AddRecords = () => {
   const [processing, setProcessing] = useState(false);
@@ -34,14 +35,6 @@ const AddRecords = () => {
       .map((key) => waitingLists[key].map((r) => [text["hi"][r], key]))
       .flat()
   );
-  // const rankMap = {
-  //   [text["hi"]["inspector"]]: "inspector",
-  //   [text["hi"]["si"]]: "si",
-  //   [text["hi"]["stenos"]]: "stenos",
-  //   [text["hi"]["constable"]]: "constable",
-  //   [text["hi"]["hc"]]: "hc",
-  //   [text["hi"]["follower"]]: "follower",
-  // };
   const router = useRouter();
 
   const addRecords = (jsonData) =>
@@ -75,7 +68,7 @@ const AddRecords = () => {
       .finally(() => setProcessing(false));
 
   const handleAddRecords = (data) => {
-    setProcessing(true);
+    // setProcessing(true);
 
     let jsonData;
     if (data.method === "sheet") {
@@ -104,18 +97,22 @@ const AddRecords = () => {
             },
           })
           .map((record) => ({
-            name: record[text["hi"]["Name"]],
-            officerRank: record[text["hi"]["Rank"]],
-            pno: record[text["hi"]["PNO"]],
-            badgeNumber: record[text["hi"]["Badge No"]],
-            mobile: record[text["hi"]["Mobile No"]],
-            registrationNumber: record[text["hi"][`Registration No`]],
-            applicationDate: record[text["hi"][`Application Date`]],
-            rank: rankMap[record[text["hi"]["Rank"]]],
+            name: krutidevUnicode(record[text["hi"]["Name"]] || ""),
+            officerRank: krutidevUnicode(record[text["hi"]["Rank"]] || ""),
+            pno: krutidevUnicode(record[text["hi"]["PNO"]] || ""),
+            badgeNumber: krutidevUnicode(record[text["hi"]["Badge No"]] || ""),
+            mobile: krutidevUnicode(record[text["hi"]["Mobile No"]] || ""),
+            registrationNumber: krutidevUnicode(
+              record[text["hi"][`Registration No`]] || ""
+            ),
+            applicationDate: krutidevUnicode(
+              record[text["hi"][`Application Date`]] || ""
+            ),
+            rank: rankMap[krutidevUnicode(record[text["hi"]["Rank"]] || "")],
           }));
 
         console.log(jsonData);
-        addRecords(jsonData);
+        // addRecords(jsonData);
       };
 
       reader.readAsArrayBuffer(data.excel_sheet.file);
