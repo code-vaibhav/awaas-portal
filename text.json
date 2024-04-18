@@ -95,7 +95,9 @@
     "Clear List": "Clear List",
     "Delete List": "Are you sure you want to clear this list?",
     "Delete Selected": "Delete Selected",
-    "Clear Selected": "Are you sure to deleted selected applications?"
+    "Clear Selected": "Are you sure to deleted selected applications?",
+    "Invalid Rank": "Please select a valid rank",
+    "No Records Found": "No records found"
   },
   "hi": {
     "Awas Portal": "आवास पोर्टल",
@@ -191,6 +193,8 @@
     "Clear List": "सूची साफ करें",
     "Delete List": "क्या आप इस सूची को साफ करना चाहते हैं?",
     "Delete Selected": "चयनित को हटाएं",
-    "Clear Selected": "क्या आप चयनित आवेदनों को हटाने के लिए सुनिश्चित हैं?"
+    "Clear Selected": "क्या आप चयनित आवेदनों को हटाने के लिए सुनिश्चित हैं?",
+    "Invalid Rank": "कृपया एक वैध रैंक चुनें",
+    "No Records Found": "कोई रिकॉर्ड नहीं मिला"
   }
 }

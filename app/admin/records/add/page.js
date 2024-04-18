@@ -111,8 +111,19 @@ const AddRecords = () => {
             rank: rankMap[krutidevUnicode(record[text["hi"]["Rank"]] || "")],
           }));
 
-        console.log(jsonData);
-        // addRecords(jsonData);
+        if (jsonData.length === 0) {
+          ErrorMessage(t["No Records Found"]);
+          return;
+        }
+        if (!jsonData.every((record) => record.rank)) {
+          ErrorMessage(t["Invalid Rank"]);
+          return;
+        }
+        if (!jsonData.every((record) => record.mobile.length === 10)) {
+          ErrorMessage(t["Invalid Mobile Number"]);
+          return;
+        }
+        addRecords(jsonData);
       };
 
       reader.readAsArrayBuffer(data.excel_sheet.file);
@@ -123,6 +134,18 @@ const AddRecords = () => {
         officerRank: t[record.rank],
       }));
 
+      if (jsonData.length === 0) {
+        ErrorMessage(t["No Records Found"]);
+        return;
+      }
+      if (!jsonData.every((record) => record.rank)) {
+        ErrorMessage(t["Invalid Rank"]);
+        return;
+      }
+      if (!jsonData.every((record) => record.mobile.length === 10)) {
+        ErrorMessage(t["Invalid Mobile Number"]);
+        return;
+      }
       addRecords(jsonData);
     }
   };
