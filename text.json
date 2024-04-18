@@ -80,6 +80,7 @@
     "Access Denied": "You dont have access to this page",
     "Application Loaded": "Application Successfully Loaded",
     "Error Loading Application": "Error in loading application, please try again",
+    "Error Loading Notices": "Error in loading notices, please try again",
     "Pending List": "Pending List",
     "Alloted List": "Alloted List",
     "Delete Record": "Are you sure to delete this record?",
@@ -89,12 +90,12 @@
     "Mark Selected Alloted": "Mark Selected Alloted",
     "User Delete": "Are you sure to delete this user",
     "tagline": "Secure homes for officers, ensuring peace of mind always",
-    "No Application Found": "Wrong Mobile or Wrong PNO",
+    "No Application Found": "Wrong Mobile or Wrong PNO. If both Mobile and PNO are correct, please contact Awas Cell",
     "Invalid Mobile Number": "Please enter a valid mobile number",
     "Clear List": "Clear List",
-    "Delete List": "Are you sure to clear this list?",
-    "Clear Selected": "Clear Selected",
-    "Delete Selected": "Are you sure to clear selected?"
+    "Delete List": "Are you sure you want to clear this list?",
+    "Delete Selected": "Delete Selected",
+    "Clear Selected": "Are you sure to deleted selected applications?"
   },
   "hi": {
     "Awas Portal": "आवास पोर्टल",
@@ -125,7 +126,7 @@
     "Input Method": "इनपुट तरीका",
     "Select Method": "मेथड का चयन करें",
     "Select Excel Sheet": "एक्सेल शीट का चयन करें",
-    "Submit": "सबमिट करें",
+    "Submit": "सबमिट",
     "Name": "नाम",
     "Mobile No": "मो0नं0",
     "Application Date": "प्रार्थना पत्र प्राप्ति का दिनांक",
@@ -185,7 +186,11 @@
     "Mark Selected Alloted": "चयनित को अनुमत करें",
     "User Delete": "क्या आप इस उपयोगकर्ता को हटाने के लिए निश्चित हैं?",
     "tagline": "अधिकारियों के लिए सुरक्षित घर, हमेशा चिंता मुक्ति की गारंटी",
-    "No Application Found": "गलत मोबाइल या गलत पीएनओ",
-    "Invalid Mobile Number": "कृपया एक वैध मोबाइल नंबर दर्ज करें"
+    "No Application Found": "गलत मोबाइल या गलत पीएनओ। यदि दोनों मोबाइल और पीएनओ सही हैं, तो कृपया आवास सेल से संपर्क करें",
+    "Invalid Mobile Number": "कृपया एक वैध मोबाइल नंबर दर्ज करें",
+    "Clear List": "सूची साफ करें",
+    "Delete List": "क्या आप इस सूची को साफ करना चाहते हैं?",
+    "Delete Selected": "चयनित को हटाएं",
+    "Clear Selected": "क्या आप चयनित आवेदनों को हटाने के लिए सुनिश्चित हैं?"
   }
 }

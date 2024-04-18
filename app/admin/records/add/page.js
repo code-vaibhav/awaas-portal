@@ -114,6 +114,7 @@ const AddRecords = () => {
             rank: rankMap[record[text["hi"]["Rank"]]],
           }));
 
+        console.log(jsonData);
         addRecords(jsonData);
       };
 

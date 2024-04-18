@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Input, Popconfirm, Checkbox } from "antd";
+import { Input, Popconfirm, Checkbox, Spin } from "antd";
 import { Button } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { langState, authState } from "@/utils/atom";
@@ -11,7 +11,7 @@ import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 import { LoadingOutlined } from "@ant-design/icons";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const ArchivedRecords = ({ records, loading }) => {
+const ArchivedRecords = ({ records, fetchRecords, loading }) => {
   const [id, setId] = useState("");
   const t = text[useRecoilValue(langState)];
   const [processing, setProcessing] = useState(false);
@@ -21,16 +21,20 @@ const ArchivedRecords = ({ records, loading }) => {
   const deleteRecord = (id) => {
     setProcessing(id);
     fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/delete?id=${id}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/archive/delete/many`,
       {
         method: "DELETE",
         credentials: "include",
         headers: {
           Authorization: `Bearer ${auth?.token}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          ids: [id],
+        }),
       }
     )
-      .then((res) => checkAuth(res, setAuth))
+      .then((res) => res.json())
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Record Deleted"]);
@@ -55,17 +59,21 @@ const ArchivedRecords = ({ records, loading }) => {
       setProcessing("all");
     }
 
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/archive/delete`, {
-      method: "DELETE",
-      credentials: "include",
-      headers: {
-        Authorization: `Bearer ${auth?.token}`,
-      },
-      body: {
-        ids: type === "selected" ? selected : records.map((r) => r.id),
-      },
-    })
-      .then((res) => checkAuth(res, setAuth))
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/archive/delete/many`,
+      {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${auth?.token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ids: type === "selected" ? selected : records.map((r) => r.id),
+        }),
+      }
+    )
+      .then((res) => res.json())
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Record Deleted"]);
@@ -197,7 +205,7 @@ const ArchivedRecords = ({ records, loading }) => {
         {auth.role === "admin" && (
           <Popconfirm
             placement="topLeft"
-            title={t["Delete Selected"]}
+            title={t["Clear Selected"]}
             okText={t["Yes"]}
             cancelText={t["No"]}
             onConfirm={() => clear("selected")}
@@ -205,7 +213,8 @@ const ArchivedRecords = ({ records, loading }) => {
             <Button
               variant="outlined"
               color="warning"
-              disabled={!!processing}
+              disabled={!!processing || selected.length === 0}
+              style={{ marginRight: "5px" }}
               startIcon={
                 processing === "selected" ? (
                   <Spin
@@ -218,7 +227,7 @@ const ArchivedRecords = ({ records, loading }) => {
                 )
               }
             >
-              {t["Clear Selected"]}
+              {t["Delete Selected"]}
             </Button>
           </Popconfirm>
         )}

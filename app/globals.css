@@ -2,6 +2,7 @@ html,
 body {
   padding: 0;
   margin: 0;
+  scroll-behavior: smooth;
 }
 
 @font-face {
@@ -105,7 +106,25 @@ iframe::-webkit-pdf-controls {
   .mobile {
     display: block;
   }
-  .padding {
-    padding-top: 10px;
+  .flex {
+    flex-direction: column-reverse;
+    align-items: center;
+  }
+  .flex-normal {
+    flex-direction: column;
+    align-items: center;
+  }
+  .flex #status {
+    width: 95% !important;
+  }
+  .flex #notices {
+    padding-top: 50px;
+  }
+  #notices .ant-list-item {
+    flex-direction: column;
+  }
+  #notices .ant-list-item-extra {
+    margin-top: 10px;
+    margin-bottom: 10px;
   }
 }

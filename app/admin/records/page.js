@@ -99,6 +99,7 @@ const Records = () => {
                 records={archivedRecords.filter(
                   (record) => record.rank === key
                 )}
+                fetchRecords={fetchArchivedRecords}
                 loading={archivedLoading}
               />
             ),

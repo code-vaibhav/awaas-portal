@@ -1,19 +1,76 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { List, Spin, Flex, Collapse } from "antd";
-import { Typography } from "@mui/material";
+import { useState, useEffect, useRef } from "react";
+import {
+  List,
+  Spin,
+  Flex,
+  Button,
+  Form,
+  Input,
+  Descriptions,
+  Divider,
+} from "antd";
+import { Typography, Grid, Card, CardContent, Container } from "@mui/material";
 import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import { AuditOutlined, CreditCardOutlined } from "@ant-design/icons";
 import text from "@/text.json";
-import Link from "next/link";
+import { LoadingOutlined } from "@ant-design/icons";
+import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 
 export default function Home() {
   const [notices, setNotices] = useState([]);
   const lang = useRecoilValue(langState);
   const t = text[lang];
   const [client, setClient] = useState(false);
+  const [application, setApplication] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const statusRef = useRef(null);
+
+  const contacts = [
+    {
+      department: "Awas Cell",
+      contact: "Police Lines, Kanpur Nagar commissionerate",
+    },
+    { department: "ACP Lines", contact: "Email: lineacp89@gmail.com" },
+    {
+      department: "DCP Headquarters",
+      contact: "Email: dcphqknr@gmail.com / CUG No: 9454400579",
+    },
+  ];
+
+  const fetchStatus = (values) => {
+    setProcessing(true);
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/info?id=${values.id}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status) {
+          setApplication(data.message);
+          console.log(application);
+          SuccessMessage(t["Application Loaded"]);
+        } else {
+          setApplication(null);
+          if (data.message === "No application found") {
+            ErrorMessage(t["No Application Found"]);
+            return;
+          }
+          console.error(data.message);
+          ErrorMessage(t["Error Loading Application"]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        ErrorMessage(t["Error Loading Application"]);
+      })
+      .finally(() => setProcessing(false));
+  };
 
   useEffect(() => {
     setClient(true);
@@ -27,6 +84,7 @@ export default function Home() {
           setNotices(data.message);
         } else {
           console.error(data.message);
+          ErrorMessage(t["Error Loading Notices"]);
         }
       })
       .catch((err) => console.error(err));
@@ -38,7 +96,8 @@ export default function Home() {
         style={{ backgroundColor: "#d5f2fe" }}
         align="center"
         justify="space-evenly"
-        vertical={client && window.innerWidth < 768}
+        className="flex-normal"
+        id="home"
       >
         <img
           src="1.png"
@@ -58,74 +117,254 @@ export default function Home() {
           <Typography variant="h3" component="h3" align="center" m={5}>
             {t["Awas Portal"]}
           </Typography>
-          <Typography variant="h5" component="h5">
-            <Link
-              href="/status"
-              style={{ color: "#007bff", textDecoration: "none" }}
-            >
+
+          <Button
+            type="link"
+            onClick={() => {
+              if (statusRef.current) {
+                statusRef.current.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                  inline: "nearest",
+                });
+              }
+            }}
+          >
+            <Typography variant="h5" component="h5">
               {t["Check Allocation Status"]}
-            </Link>
-          </Typography>
+            </Typography>
+          </Button>
         </div>
       </Flex>
 
-      <Typography variant="h4" align="center" my={4}>
-        {t["Notices"]}
-      </Typography>
-      <div style={{ width: "70%", margin: "auto" }}>
-        <List
-          itemLayout="vertical"
-          size="small"
-          pagination={{
-            onChange: (page) => {
-              console.log(page);
-            },
-            pageSize: 5,
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-evenly",
+          padding: "50px 0",
+          alignItems: "stretch",
+        }}
+        className="flex"
+      >
+        <section id="notices" style={{ flex: 1 }}>
+          <Typography variant="h4" align="center" my={4}>
+            {t["Notices"]}
+          </Typography>
+          <div style={{ width: "80%", margin: "auto" }}>
+            <List
+              itemLayout="vertical"
+              size="small"
+              pagination={{
+                onChange: (page) => {
+                  console.log(page);
+                },
+                pageSize: 5,
+              }}
+              dataSource={notices.sort(
+                (a, b) => new Date(b.releasedOn) - new Date(a.releasedOn)
+              )}
+              renderItem={(notice) => (
+                <List.Item
+                  key={notice.heading}
+                  extra={
+                    <a href={notice.url} target="_blank">
+                      <Button>View Notice</Button>
+                    </a>
+                  }
+                >
+                  <List.Item.Meta
+                    avatar={
+                      notice.type === "allotment" ? (
+                        <AuditOutlined />
+                      ) : (
+                        <CreditCardOutlined />
+                      )
+                    }
+                    title={
+                      <a target="_blank" href={notice.url}>
+                        {notice.heading}{" "}
+                      </a>
+                    }
+                  />
+                  Released On:{" "}
+                  {new Date(notice.releasedOn).toLocaleDateString("en-GB")}
+                  {", "}
+                  Type: {notice.type}
+                </List.Item>
+              )}
+            />
+          </div>
+        </section>
+
+        <Divider
+          type="vertical"
+          style={{
+            borderInlineStartWidth: "4px",
+            alignSelf: "center",
+            height: "300px",
           }}
-          dataSource={notices.sort(
-            (a, b) => new Date(b.releasedOn) - new Date(a.releasedOn)
-          )}
-          renderItem={(notice) => (
-            <List.Item
-              key={notice.heading}
-              extra={
-                <div className="pdf-container">
-                  <div className="pdf-link">
-                    <iframe
-                      src={notice.url}
-                      title="PDF Preview"
-                      width="100%"
-                      className="pdf-iframe"
-                    ></iframe>
-                  </div>
-                  <a target="_blank" href={notice.url} className="pdf-overlay">
-                    View
-                  </a>
-                </div>
-              }
-            >
-              <List.Item.Meta
-                avatar={
-                  notice.type === "allotment" ? (
-                    <AuditOutlined />
-                  ) : (
-                    <CreditCardOutlined />
-                  )
-                }
-                title={
-                  <a target="_blank" href={notice.url}>
-                    {notice.heading}
-                  </a>
-                }
-                description={new Date(notice.releasedOn).toLocaleDateString(
-                  "en-GB"
-                )}
-              />
-              {notice.type}
-            </List.Item>
-          )}
+          className="desktop"
         />
+
+        <section ref={statusRef} id="status" style={{ width: "55%" }}>
+          <Typography variant="h4" align="center" gutterBottom my={4}>
+            {t["Check Allocation Status"]}
+          </Typography>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              width: "100%",
+              flexDirection: "column",
+            }}
+          >
+            <Form
+              name="status"
+              onFinish={fetchStatus}
+              autoComplete="off"
+              layout="inline"
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              style={{
+                justifyContent: "center",
+              }}
+              labelAlign="left"
+            >
+              <Form.Item label={t["Enter PNO"]} name="id" required>
+                <Input />
+              </Form.Item>
+              <Form.Item wrapperCol={{ span: 24 }}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  disabled={processing}
+                  style={{ marginLeft: "50%", transform: "translateX(-50%)" }}
+                >
+                  {processing && (
+                    <Spin
+                      indicator={
+                        <LoadingOutlined style={{ fontSize: 24 }} spin />
+                      }
+                    />
+                  )}{" "}
+                  {t["Submit"]}
+                </Button>
+              </Form.Item>
+            </Form>
+            {application && (
+              <Descriptions
+                title={
+                  <Typography variant="h5" align="center">
+                    {t["Application Info"]}
+                  </Typography>
+                }
+                items={[
+                  {
+                    key: 1,
+                    label: t["Name"],
+                    children: application["name"],
+                  },
+                  {
+                    key: 2,
+                    label: t["PNO"],
+                    children: application["pno"],
+                  },
+                  {
+                    key: 3,
+                    label: t["Badge No"],
+                    children: application["badgeNumber"],
+                  },
+                  {
+                    key: 4,
+                    label: t["Rank"],
+                    children: application["officerRank"],
+                  },
+                  {
+                    key: 5,
+                    label: t["Application Date"],
+                    children: new Date(
+                      application["applicationDate"]
+                    ).toLocaleDateString("en-GB"),
+                  },
+                  {
+                    key: 6,
+                    label: t["Registration No"],
+                    children: application["registrationNumber"],
+                  },
+                  {
+                    key: 7,
+                    label: t["Initial Waiting"],
+                    children: application["initialWaiting"],
+                  },
+                  {
+                    key: 8,
+                    label: t["Current Waiting"],
+                    children: application["currentWaiting"],
+                  },
+                  {
+                    key: 9,
+                    label: t["Mobile No"],
+                    children: application["mobile"],
+                  },
+                ]}
+                style={{
+                  width: "90%",
+                  margin: "auto",
+                  marginTop: "30px",
+                }}
+                bordered
+              />
+            )}
+          </div>
+        </section>
       </div>
+
+      <Container id="contact" style={{ minWidth: "90%" }}>
+        <Typography variant="h4" align="center" gutterBottom my={4}>
+          Contact Us
+        </Typography>
+        <Grid container spacing={3}>
+          {contacts.map((contact, index) => (
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              lg={index < 3 ? 4 : 6}
+              key={index}
+              style={{ height: "100%" }}
+            >
+              <Card
+                style={{
+                  boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",
+                  transition: "0.3s",
+                  "&:hover": {
+                    boxShadow: "0 8px 16px 0 rgba(0,0,0,0.2)",
+                  },
+                }}
+                elevation={3}
+              >
+                <CardContent>
+                  <Typography
+                    variant="h6"
+                    component="h2"
+                    style={{
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {contact.department}
+                  </Typography>
+                  {contact.contact.split("/").map((line, index) => (
+                    <Typography key={index} color="textSecondary">
+                      {line}
+                    </Typography>
+                  ))}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
     </div>
   ) : (
     <Spin spinning={true} fullscreen />

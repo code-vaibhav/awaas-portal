@@ -84,6 +84,40 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
       .finally(() => setProcessing(false));
   };
 
+  const deleteSelected = () => {
+    setProcessing("delete");
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/delete/many`,
+      {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${auth?.token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ids: selected,
+        }),
+      }
+    )
+      .then((res) => checkAuth(res, setAuth))
+      .then((data) => {
+        if (data.status) {
+          SuccessMessage(t["Record Deleted"]);
+          fetchRecords();
+          setSelected([]);
+        } else {
+          console.error(data.message);
+          ErrorMessage(t["Error Deleting Record"]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        ErrorMessage(t["Error Deleting Record"]);
+      })
+      .finally(() => setProcessing(false));
+  };
+
   const columns = [
     {
       field: "checkbox",
@@ -261,6 +295,7 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
             variant="outlined"
             color="primary"
             disabled={!!processing || selected.length === 0}
+            style={{ marginRight: "10px" }}
             startIcon={
               processing === `allot` ? (
                 <Spin
@@ -274,6 +309,34 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
             {t["Mark Selected Alloted"]}
           </Button>
         </Popconfirm>
+        {auth.role === "admin" && (
+          <Popconfirm
+            placement="topLeft"
+            title={t["Clear Selected"]}
+            okText={t["Yes"]}
+            cancelText={t["No"]}
+            onConfirm={() => deleteSelected()}
+          >
+            <Button
+              variant="outlined"
+              color="warning"
+              disabled={!!processing || selected.length === 0}
+              startIcon={
+                processing === `delete` ? (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }
+                  />
+                ) : (
+                  <CheckIcon fontSize="inherit" />
+                )
+              }
+            >
+              {t["Delete Selected"]}
+            </Button>
+          </Popconfirm>
+        )}
       </div>
 
       <DataGrid

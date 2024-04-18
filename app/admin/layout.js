@@ -81,7 +81,7 @@ export default function DashboardWrapper({ children }) {
                 label: <Link href="/admin/notices">{t["Notices"]}</Link>,
                 icon: <NoteIcon />,
               },
-              auth.role === "admin" && {
+              auth?.role === "admin" && {
                 key: "4",
                 label: <Link href="/admin/users">{t["Users"]}</Link>,
                 icon: <GroupIcon />,
@@ -100,13 +100,7 @@ export default function DashboardWrapper({ children }) {
                 mode="horizontal"
                 disabledOverflow
                 defaultSelectedKeys={
-                  pathname.split("/")[1] === ""
-                    ? ["1"]
-                    : pathname.split("/")[1] === "checkstatus"
-                    ? ["2"]
-                    : pathname.split("/")[1] === "contact"
-                    ? ["3"]
-                    : ["4"]
+                  pathname.split("/")[1] === "" ? ["1"] : ["2"]
                 }
                 items={[
                   {
@@ -116,18 +110,6 @@ export default function DashboardWrapper({ children }) {
                   },
                   {
                     key: "2",
-                    label: (
-                      <Link href="/status">{t["Check Allocation Status"]}</Link>
-                    ),
-                    icon: <InfoIcon />,
-                  },
-                  {
-                    key: "3",
-                    label: <Link href="/contact">{t["Contact"]}</Link>,
-                    icon: <PhoneIcon />,
-                  },
-                  {
-                    key: "4",
                     label: <Link href="/admin">{t["Admin"]}</Link>,
                     icon: <AdminPanelSettingsIcon />,
                   },
