@@ -187,10 +187,10 @@ export default function Home() {
                       </a>
                     }
                   />
-                  Released On:{" "}
+                  {t["Release Date"]}:{" "}
                   {new Date(notice.releasedOn).toLocaleDateString("en-GB")}
                   {", "}
-                  Type: {notice.type}
+                  {t["Notice Type"]}: {notice.type}
                 </List.Item>
               )}
             />

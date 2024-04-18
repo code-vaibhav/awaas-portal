@@ -329,7 +329,7 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
                     }
                   />
                 ) : (
-                  <CheckIcon fontSize="inherit" />
+                  <DeleteIcon fontSize="inherit" />
                 )
               }
             >
