@@ -1,17 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import {
-  Input,
-  Button,
-  Space,
-  Form,
-  Upload,
-  Spin,
-  Select,
-  DatePicker,
-} from "antd";
-import { Typography } from "@mui/material";
+import { Input, Space, Form, Upload, Spin, Select, DatePicker } from "antd";
+import { Typography, Button } from "@mui/material";
 import { LoadingOutlined } from "@ant-design/icons";
 import { authState, langState } from "@/utils/atom";
 import { useRecoilValue, useRecoilState } from "recoil";
@@ -68,7 +59,7 @@ const AddRecords = () => {
       .finally(() => setProcessing(false));
 
   const handleAddRecords = (data) => {
-    // setProcessing(true);
+    setProcessing(true);
 
     let jsonData;
     if (data.method === "sheet") {
@@ -111,16 +102,16 @@ const AddRecords = () => {
             rank: rankMap[krutidevUnicode(record[text["hi"]["Rank"]] || "")],
           }));
 
+        console.log(jsonData);
+
         if (jsonData.length === 0) {
           ErrorMessage(t["No Records Found"]);
+          setProcessing(false);
           return;
         }
         if (!jsonData.every((record) => record.rank)) {
           ErrorMessage(t["Invalid Rank"]);
-          return;
-        }
-        if (!jsonData.every((record) => record.mobile.length === 10)) {
-          ErrorMessage(t["Invalid Mobile Number"]);
+          setProcessing(false);
           return;
         }
         addRecords(jsonData);
@@ -130,20 +121,18 @@ const AddRecords = () => {
     } else {
       jsonData = data.records.map((record) => ({
         ...record,
-        rank: rankMap(text["hi"][record.rank]),
+        rank: rankMap[text["hi"][record.rank]],
         officerRank: t[record.rank],
       }));
 
       if (jsonData.length === 0) {
         ErrorMessage(t["No Records Found"]);
+        setProcessing(false);
         return;
       }
       if (!jsonData.every((record) => record.rank)) {
         ErrorMessage(t["Invalid Rank"]);
-        return;
-      }
-      if (!jsonData.every((record) => record.mobile.length === 10)) {
-        ErrorMessage(t["Invalid Mobile Number"]);
+        setProcessing(false);
         return;
       }
       addRecords(jsonData);
@@ -221,26 +210,28 @@ const AddRecords = () => {
                       listType="picture"
                     >
                       <Button
-                        variant="contained"
+                        variant="outlined"
                         component="span"
-                        disabled={!!processing}
+                        disabled={processing}
                       >
                         {t["Select Excel Sheet"]}
                       </Button>
                     </Upload>
                   </Form.Item>
                   <Button
-                    type="primary"
-                    htmlType="submit"
-                    disabled={!!processing}
+                    variant="contained"
+                    disabled={processing}
+                    type="submit"
+                    startIcon={
+                      processing ? (
+                        <Spin
+                          indicator={
+                            <LoadingOutlined style={{ fontSize: 20 }} spin />
+                          }
+                        />
+                      ) : null
+                    }
                   >
-                    {processing && (
-                      <Spin
-                        indicator={
-                          <LoadingOutlined style={{ fontSize: 24 }} spin />
-                        }
-                      />
-                    )}
                     {t["Submit"]}
                   </Button>
                 </Space>
@@ -295,7 +286,7 @@ const AddRecords = () => {
                       <Button
                         type="primary"
                         htmlType="submit"
-                        disabled={!!processing}
+                        disabled={processing}
                       >
                         {processing && (
                           <Spin
@@ -362,12 +353,11 @@ const AddRecords = () => {
                               options={[
                                 { label: t["inspector"], value: "inspector" },
                                 { label: t["si"], value: "si" },
-                                { label: t["stenos"], value: "stenos" },
-                                { label: t["constable"], value: "constable" },
                                 { label: t["hc"], value: "hc" },
+                                { label: t["constable"], value: "constable" },
                                 {
-                                  label: t["follower"],
-                                  value: "follower",
+                                  label: t["various"],
+                                  value: "various",
                                 },
                               ]}
                             />

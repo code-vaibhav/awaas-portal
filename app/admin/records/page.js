@@ -13,8 +13,8 @@ import { useState, useEffect } from "react";
 import { checkAuth } from "@/utils/auth";
 
 export const waitingLists = {
-  rank1: ["inspector", "si", "stenos"],
-  rank2: ["constable", "hc", "follower"],
+  rank1: ["inspector", "si"],
+  rank2: ["constable", "hc", "various"],
 };
 
 const Records = () => {

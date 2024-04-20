@@ -1,17 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { List, Spin, Flex, Form, Input, Descriptions, Divider } from "antd";
 import {
-  List,
-  Spin,
-  Flex,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Container,
   Button,
-  Form,
-  Input,
-  Descriptions,
-  Divider,
-} from "antd";
-import { Typography, Grid, Card, CardContent, Container } from "@mui/material";
+} from "@mui/material";
 import { langState } from "@/utils/atom";
 import { useRecoilValue } from "recoil";
 import { AuditOutlined, CreditCardOutlined } from "@ant-design/icons";
@@ -314,6 +312,7 @@ export default function Home() {
                   marginTop: "30px",
                 }}
                 bordered
+                labelStyle={{ backgroundColor: "#d5f2fe" }}
               />
             )}
           </div>
@@ -324,7 +323,12 @@ export default function Home() {
         <Typography variant="h4" align="center" gutterBottom my={4}>
           Contact Us
         </Typography>
-        <Grid container spacing={3}>
+        <Grid
+          container
+          spacing={3}
+          alignItems="stretch"
+          style={{ marginTop: 0 }}
+        >
           {contacts.map((contact, index) => (
             <Grid
               item
@@ -332,7 +336,12 @@ export default function Home() {
               sm={6}
               lg={index < 3 ? 4 : 6}
               key={index}
-              style={{ height: "100%" }}
+              style={{
+                minHeight: "100%",
+                paddingTop: "10px",
+                paddingRight: "12px",
+                paddingLeft: "12px",
+              }}
             >
               <Card
                 style={{
@@ -341,6 +350,7 @@ export default function Home() {
                   "&:hover": {
                     boxShadow: "0 8px 16px 0 rgba(0,0,0,0.2)",
                   },
+                  height: "100%",
                 }}
                 elevation={3}
               >

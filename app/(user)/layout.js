@@ -90,7 +90,7 @@ const RootLayout = ({ children }) => {
         {children}
       </Content>
 
-      <FooterContainer>
+      <FooterContainer style={{ backgroundColor: "#d5f2fe" }}>
         <Footer />
       </FooterContainer>
     </Layout>
