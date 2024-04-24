@@ -72,7 +72,7 @@ iframe::-webkit-pdf-controls {
 }
 
 .ant-list-item-extra {
-  width: 40% !important;
+  width: 40%;
 }
 
 .pdf-overlay {
@@ -125,10 +125,13 @@ iframe::-webkit-pdf-controls {
     padding-top: 50px;
   }
   #notices .ant-list-item {
-    flex-direction: column;
+    flex-direction: column-reverse;
   }
   #notices .ant-list-item-extra {
     margin-top: 10px;
     margin-bottom: 10px;
+  }
+  .ant-list-item-extra {
+    width: 70%;
   }
 }

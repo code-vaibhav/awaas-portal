@@ -13,7 +13,7 @@ import { logIn } from "@/utils/auth";
 import { authState, langState } from "@/utils/atom";
 import { useRecoilValue, useRecoilState } from "recoil";
 import text from "@/text.json";
-import { ErrorMessage } from "@/components/Notification";
+import { Spin } from "antd";
 
 export default function Login() {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function Login() {
   const [processing, setProcessing] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (auth) {
@@ -42,6 +43,7 @@ export default function Login() {
       })
         .then((res) => {
           if (res.status === 401) {
+            setLoading(false);
             localStorage.removeItem("auth");
           } else {
             setAuth(JSON.parse(localStorage.getItem("auth")));
@@ -52,6 +54,8 @@ export default function Login() {
           console.error(err);
         });
     }
+
+    setLoading(false);
   }, []);
 
   const performLogin = async () => {
@@ -80,7 +84,9 @@ export default function Login() {
     }
   };
 
-  return (
+  return loading ? (
+    <Spin spinning={true} fullscreen />
+  ) : (
     <Container component="div" maxWidth="xs" style={{ marginTop: "15vh" }}>
       <Typography component="h1" variant="h5" align="center">
         {t["Login"]}
