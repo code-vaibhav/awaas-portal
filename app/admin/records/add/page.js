@@ -96,24 +96,31 @@ const AddRecords = () => {
             });
 
             return {
-              name: krutidevUnicode(strippedRecord[text["hi"]["Name"]] || ""),
+              name:
+                krutidevUnicode(strippedRecord[text["hi"]["Name"]] || "") ||
+                "-",
               officerRank: krutidevUnicode(
                 strippedRecord[text["hi"]["Rank"]] || ""
               ),
               pno: strippedRecord[text["hi"]["PNO"]],
-              badgeNumber: krutidevUnicode(
-                strippedRecord[text["hi"]["Badge No"]] || ""
-              ),
-              mobile: krutidevUnicode(
-                strippedRecord[text["hi"]["Mobile No"]] || ""
-              ),
-              registrationNumber: krutidevUnicode(
-                strippedRecord[text["hi"][`Registration No`]] || ""
-              ),
-              applicationDate: strippedRecord[text["hi"][`Application Date`]],
-              rank: rankMap[
-                krutidevUnicode(strippedRecord[text["hi"]["Rank"]] || "")
-              ],
+              badgeNumber:
+                krutidevUnicode(strippedRecord[text["hi"]["Badge No"]] || "") ||
+                "-",
+              mobile:
+                krutidevUnicode(
+                  strippedRecord[text["hi"]["Mobile No"]] || ""
+                ) || "-",
+              registrationNumber:
+                krutidevUnicode(
+                  strippedRecord[text["hi"][`Registration No`]] || ""
+                ) || "-",
+              applicationDate: strippedRecord[text["hi"][`Application Date`]]
+                .split(".")
+                .reduce((acc, val) => (acc ? acc + "/" + val : val), ""),
+              rank:
+                rankMap[
+                  krutidevUnicode(strippedRecord[text["hi"]["Rank"]] || "")
+                ] || "-",
             };
           });
 
@@ -140,19 +147,16 @@ const AddRecords = () => {
       setProcessing(true);
 
       jsonData = data.records.map((record) => {
-        const [day, month, year] = params.row.applicationDate.split("/");
-        const formattedDate = new Date(
-          `${year}/${month}/${day}`
-        ).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
+        console.log(record);
+        const date = new Date(record.applicationDate["$d"]).getDate();
+        const month = new Date(record.applicationDate["$d"]).getMonth() + 1;
+        const year = new Date(record.applicationDate["$d"]).getFullYear();
+
         return {
           ...record,
           rank: rankMap[text["hi"][record.rank]],
           officerRank: t[record.rank],
-          applicationDate: formattedDate,
+          applicationDate: `${date}/${month}/${year}`,
         };
       });
 
@@ -372,14 +376,7 @@ const AddRecords = () => {
                             name={[name, "applicationDate"]}
                             required
                           >
-                            <DatePicker
-                              disabledDate={(current) =>
-                                current &&
-                                current.valueOf() >
-                                  new Date().setHours(0, 0, 0, 0).valueOf()
-                              }
-                              format="DD/MM/YYYY"
-                            />
+                            <DatePicker format="DD/MM/YYYY" />
                           </Form.Item>
                           <Form.Item
                             {...restField}

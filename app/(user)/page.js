@@ -150,7 +150,7 @@ export default function Home() {
           <Typography variant="h4" align="center" my={4}>
             {t["Notices"]}
           </Typography>
-          <div style={{ width: "80%", margin: "auto" }}>
+          <div style={{ width: "90%", margin: "auto" }}>
             <List
               itemLayout="vertical"
               size="small"
@@ -167,14 +167,23 @@ export default function Home() {
                 <List.Item
                   key={notice.heading}
                   extra={
-                    <a href={notice.url} target="_blank">
-                      <Button
-                        variant="outlined"
-                        startIcon={<PictureAsPdfIcon />}
+                    <div className="pdf-container">
+                      <div className="pdf-link">
+                        <iframe
+                          src={notice.url}
+                          title="PDF Preview"
+                          width="100%"
+                          className="pdf-iframe"
+                        ></iframe>
+                      </div>
+                      <a
+                        target="_blank"
+                        href={notice.url}
+                        className="pdf-overlay"
                       >
-                        {t["View Notice"]}
-                      </Button>
-                    </a>
+                        View
+                      </a>
+                    </div>
                   }
                 >
                   <List.Item.Meta
@@ -190,11 +199,17 @@ export default function Home() {
                         {notice.heading}{" "}
                       </a>
                     }
+                    description={`${t["Release Date"]}: ${new Date(
+                      notice.releasedOn
+                    ).toLocaleDateString("en-GB")}, ${t["Notice Type"]}: ${
+                      notice.type
+                    }`}
                   />
-                  {t["Release Date"]}:{" "}
-                  {new Date(notice.releasedOn).toLocaleDateString("en-GB")}
-                  {", "}
-                  {t["Notice Type"]}: {notice.type}
+                  <a href={notice.url} target="_blank">
+                    <Button variant="outlined" startIcon={<PictureAsPdfIcon />}>
+                      {t["View Notice"]}
+                    </Button>
+                  </a>
                 </List.Item>
               )}
             />
@@ -211,7 +226,7 @@ export default function Home() {
           className="desktop"
         />
 
-        <section ref={statusRef} id="status" style={{ width: "55%" }}>
+        <section ref={statusRef} id="status" style={{ width: "50%" }}>
           <Typography variant="h4" align="center" gutterBottom my={4}>
             {t["Check Allocation Status"]}
           </Typography>
@@ -232,6 +247,7 @@ export default function Home() {
               wrapperCol={{ span: 18 }}
               style={{
                 justifyContent: "center",
+                alignItems: "center",
               }}
               labelAlign="left"
             >
@@ -240,18 +256,20 @@ export default function Home() {
               </Form.Item>
               <Form.Item wrapperCol={{ span: 24 }}>
                 <Button
-                  type="primary"
-                  htmlType="submit"
+                  type="submit"
+                  variant="contained"
                   disabled={processing}
                   style={{ marginLeft: "50%", transform: "translateX(-50%)" }}
+                  startIcon={
+                    processing && (
+                      <Spin
+                        indicator={
+                          <LoadingOutlined style={{ fontSize: 24 }} spin />
+                        }
+                      />
+                    )
+                  }
                 >
-                  {processing && (
-                    <Spin
-                      indicator={
-                        <LoadingOutlined style={{ fontSize: 24 }} spin />
-                      }
-                    />
-                  )}{" "}
                   {t["Submit"]}
                 </Button>
               </Form.Item>
@@ -313,7 +331,7 @@ export default function Home() {
                   },
                 ]}
                 style={{
-                  width: "90%",
+                  width: "95%",
                   margin: "auto",
                   marginTop: "30px",
                 }}
@@ -333,7 +351,7 @@ export default function Home() {
           container
           spacing={3}
           alignItems="stretch"
-          style={{ marginTop: 0 }}
+          style={{ marginTop: 0, marginLeft: 0, width: "100%" }}
         >
           {contacts.map((contact, index) => (
             <Grid

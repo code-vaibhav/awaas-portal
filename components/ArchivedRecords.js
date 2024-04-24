@@ -243,7 +243,7 @@ const ArchivedRecords = ({ records, fetchRecords, loading }) => {
             <Button
               variant="outlined"
               color="warning"
-              disabled={!!processing}
+              disabled={!!processing || !records?.length}
               startIcon={
                 processing === "all" ? (
                   <Spin

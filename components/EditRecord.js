@@ -52,7 +52,7 @@ export default function EditRecord({ record, open, setOpen, fetchRecords }) {
     >
       <Form
         name="edit_record"
-        labelCol={{ span: 7 }}
+        labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         onFinish={editRecord}
         autoComplete="off"
@@ -61,43 +61,53 @@ export default function EditRecord({ record, open, setOpen, fetchRecords }) {
         initialValues={{
           registrationNumber: record?.registrationNumber || "",
           name: record?.name || "",
-          rank: record?.rank || "",
+          rank: record?.officerRank || "",
           pno: record?.pno || "",
           badgeNumber: record?.badgeNumber || "",
           mobile: record?.mobile || "",
+          applicationDate: record?.applicationDate || "",
         }}
       >
-        <Form.Item label={t["Registration No"]} name="registrationNumber">
-          <Input lang={lang} type="number" />
-        </Form.Item>
-        <Form.Item label={t["Name"]} name="name">
-          <Input lang={lang} type="text" />
-        </Form.Item>
-        <Form.Item label={t["Rank"]} name="rank">
-          <Select
-            placeholder={t["Select Rank"]}
-            options={[
-              { label: t["inspector"], value: "inspector" },
-              { label: t["si"], value: "si" },
-              { label: t["stenos"], value: "stenos" },
-              { label: t["constable"], value: "constable" },
-              { label: t["hc"], value: "hc" },
-              {
-                label: t["follower"],
-                value: "follower",
-              },
-            ]}
-          />
-        </Form.Item>
+        {auth.role === "admin" && (
+          <Form.Item label={t["Registration No"]} name="registrationNumber">
+            <Input lang={lang} type="number" />
+          </Form.Item>
+        )}
+        {auth.role === "admin" && (
+          <Form.Item label={t["Name"]} name="name">
+            <Input lang={lang} type="text" />
+          </Form.Item>
+        )}
+        {auth.role === "admin" && (
+          <Form.Item label={t["Rank"]} name="rank">
+            <Select
+              placeholder={t["Select Rank"]}
+              options={[
+                { label: t["inspector"], value: "inspector" },
+                { label: t["si"], value: "si" },
+                { label: t["constable"], value: "constable" },
+                { label: t["hc"], value: "hc" },
+                { label: t["various"], value: "various" },
+              ]}
+            />
+          </Form.Item>
+        )}
         <Form.Item label={t["PNO"]} name="pno">
           <Input type="number" />
         </Form.Item>
-        <Form.Item label={t["Badge No"]} name="badgeNumber">
-          <Input type="number" />
-        </Form.Item>
+        {auth.role === "admin" && (
+          <Form.Item label={t["Badge No"]} name="badgeNumber">
+            <Input type="number" />
+          </Form.Item>
+        )}
         <Form.Item label={t["Mobile No"]} name="mobile">
           <Input type="number" />
         </Form.Item>
+        {auth.role === "admin" && (
+          <Form.Item label={t["Application Date"]} name="applicationDate">
+            <Input type="text" />
+          </Form.Item>
+        )}
         <Form.Item style={{ margin: "auto" }} wrapperCol={{ span: 24 }}>
           <Button
             type="primary"

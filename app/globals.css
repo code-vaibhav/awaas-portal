@@ -71,6 +71,10 @@ iframe::-webkit-pdf-controls {
   overflow: hidden;
 }
 
+.ant-list-item-extra {
+  width: 40% !important;
+}
+
 .pdf-overlay {
   position: absolute;
   top: 0;

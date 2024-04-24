@@ -33,7 +33,11 @@ export const logOut = async () => {
 
 export const checkAuth = (res, setAuth) => {
   if (res.status === 401) {
-    logOut();
+    logOut().then(() => {
+      setAuth(null);
+      localStorage.removeItem("auth");
+      router.push("/admin");
+    });
   }
   return res.json();
 };
