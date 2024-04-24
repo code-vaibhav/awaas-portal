@@ -17,6 +17,13 @@ export const waitingLists = {
   rank2: ["constable", "hc", "various"],
 };
 
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+
 const Records = () => {
   const t = text[useRecoilValue(langState)];
   const [auth, setAuth] = useRecoilState(authState);
@@ -77,36 +84,41 @@ const Records = () => {
       <Typography variant="h4" component="h4" align="center" m={5}>
         {t["Records"]}
       </Typography>
-      <Tabs
-        defaultActiveKey="1"
-        items={[
-          ...Object.keys(waitingLists).map((key, idx) => ({
-            key: idx,
-            label: `${t["Pending List"]} ${idx + 1}`,
-            children: (
-              <PendingRecords
-                records={pendingRecords.filter((record) => record.rank === key)}
-                fetchRecords={fetchPendingRecords}
-                loading={pendingLoading}
-              />
-            ),
-          })),
-          ...Object.keys(waitingLists).map((key, idx) => ({
-            key: Object.keys(waitingLists).length + idx,
-            label: `${t["Alloted List"]} ${idx + 1}`,
-            children: (
-              <ArchivedRecords
-                records={archivedRecords.filter(
-                  (record) => record.rank === key
-                )}
-                fetchRecords={fetchArchivedRecords}
-                loading={archivedLoading}
-              />
-            ),
-          })),
-        ]}
-        centered
-      />
+
+      <Tabs defaultActiveKey="p1" centered>
+        <Tabs.TabPane tab={`${t["Pending List"]} 1 - ${t["p1"]}`} key="p1">
+          <PendingRecords
+            records={pendingRecords.filter((record) => record.rank === "rank1")}
+            fetchRecords={fetchPendingRecords}
+            loading={pendingLoading}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={`${t["Pending List"]} 2 - ${t["p2"]}`} key="p2">
+          <PendingRecords
+            records={pendingRecords.filter((record) => record.rank === "rank2")}
+            fetchRecords={fetchPendingRecords}
+            loading={pendingLoading}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={`${t["Alloted List"]} 1`} key="a1">
+          <ArchivedRecords
+            records={archivedRecords.filter(
+              (record) => record.rank === "rank1"
+            )}
+            fetchRecords={fetchPendingRecords}
+            loading={pendingLoading}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={`${t["Alloted List"]} 2`} key="a2">
+          <ArchivedRecords
+            records={archivedRecords.filter(
+              (record) => record.rank === "rank2"
+            )}
+            fetchRecords={fetchPendingRecords}
+            loading={pendingLoading}
+          />
+        </Tabs.TabPane>
+      </Tabs>
     </div>
   );
 };

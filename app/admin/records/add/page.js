@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { checkAuth } from "@/utils/auth";
 import { waitingLists } from "../page";
 import krutidevUnicode from "@anthro-ai/krutidev-unicode";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 
 const AddRecords = () => {
   const [processing, setProcessing] = useState(false);
@@ -59,8 +60,6 @@ const AddRecords = () => {
       .finally(() => setProcessing(false));
 
   const handleAddRecords = (data) => {
-    setProcessing(true);
-
     let jsonData;
     if (data.method === "sheet") {
       const reader = new FileReader();
@@ -87,20 +86,36 @@ const AddRecords = () => {
               return cell.w;
             },
           })
-          .map((record) => ({
-            name: krutidevUnicode(record[text["hi"]["Name"]] || ""),
-            officerRank: krutidevUnicode(record[text["hi"]["Rank"]] || ""),
-            pno: krutidevUnicode(record[text["hi"]["PNO"]] || ""),
-            badgeNumber: krutidevUnicode(record[text["hi"]["Badge No"]] || ""),
-            mobile: krutidevUnicode(record[text["hi"]["Mobile No"]] || ""),
-            registrationNumber: krutidevUnicode(
-              record[text["hi"][`Registration No`]] || ""
-            ),
-            applicationDate: krutidevUnicode(
-              record[text["hi"][`Application Date`]] || ""
-            ),
-            rank: rankMap[krutidevUnicode(record[text["hi"]["Rank"]] || "")],
-          }));
+          .map((record) => {
+            const strippedRecord = {};
+            Object.entries(record).forEach(([key, value]) => {
+              const strippedKey = krutidevUnicode(key.trim());
+              const strippedValue =
+                typeof value === "string" ? value.trim() : value;
+              strippedRecord[strippedKey] = strippedValue;
+            });
+
+            return {
+              name: krutidevUnicode(strippedRecord[text["hi"]["Name"]] || ""),
+              officerRank: krutidevUnicode(
+                strippedRecord[text["hi"]["Rank"]] || ""
+              ),
+              pno: strippedRecord[text["hi"]["PNO"]],
+              badgeNumber: krutidevUnicode(
+                strippedRecord[text["hi"]["Badge No"]] || ""
+              ),
+              mobile: krutidevUnicode(
+                strippedRecord[text["hi"]["Mobile No"]] || ""
+              ),
+              registrationNumber: krutidevUnicode(
+                strippedRecord[text["hi"][`Registration No`]] || ""
+              ),
+              applicationDate: strippedRecord[text["hi"][`Application Date`]],
+              rank: rankMap[
+                krutidevUnicode(strippedRecord[text["hi"]["Rank"]] || "")
+              ],
+            };
+          });
 
         console.log(jsonData);
 
@@ -114,16 +129,32 @@ const AddRecords = () => {
           setProcessing(false);
           return;
         }
-        addRecords(jsonData);
+
+        setProcessing(false);
+        // addRecords(jsonData);
       };
 
+      setProcessing(true);
       reader.readAsArrayBuffer(data.excel_sheet.file);
     } else {
-      jsonData = data.records.map((record) => ({
-        ...record,
-        rank: rankMap[text["hi"][record.rank]],
-        officerRank: t[record.rank],
-      }));
+      setProcessing(true);
+
+      jsonData = data.records.map((record) => {
+        const [day, month, year] = params.row.applicationDate.split("/");
+        const formattedDate = new Date(
+          `${year}/${month}/${day}`
+        ).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+        return {
+          ...record,
+          rank: rankMap[text["hi"][record.rank]],
+          officerRank: t[record.rank],
+          applicationDate: formattedDate,
+        };
+      });
 
       if (jsonData.length === 0) {
         ErrorMessage(t["No Records Found"]);
@@ -135,6 +166,7 @@ const AddRecords = () => {
         setProcessing(false);
         return;
       }
+
       addRecords(jsonData);
     }
   };
@@ -213,6 +245,7 @@ const AddRecords = () => {
                         variant="outlined"
                         component="span"
                         disabled={processing}
+                        startIcon={<FileUploadIcon />}
                       >
                         {t["Select Excel Sheet"]}
                       </Button>
@@ -226,7 +259,7 @@ const AddRecords = () => {
                       processing ? (
                         <Spin
                           indicator={
-                            <LoadingOutlined style={{ fontSize: 20 }} spin />
+                            <LoadingOutlined style={{ fontSize: 16 }} spin />
                           }
                         />
                       ) : null
@@ -275,26 +308,32 @@ const AddRecords = () => {
                     >
                       <Form.Item>
                         <Button
-                          type="dashed"
+                          variant="outlined"
                           onClick={() => add()}
-                          icon={<PlusOutlined />}
+                          startIcon={<PlusOutlined />}
+                          disabled={processing}
                         >
                           {t["Add Record"]}
                         </Button>
                         <Form.ErrorList errors={errors} />
                       </Form.Item>
                       <Button
-                        type="primary"
-                        htmlType="submit"
+                        type="submit"
+                        variant="contained"
                         disabled={processing}
+                        startIcon={
+                          processing ? (
+                            <Spin
+                              indicator={
+                                <LoadingOutlined
+                                  style={{ fontSize: 16 }}
+                                  spin
+                                />
+                              }
+                            />
+                          ) : null
+                        }
                       >
-                        {processing && (
-                          <Spin
-                            indicator={
-                              <LoadingOutlined style={{ fontSize: 24 }} spin />
-                            }
-                          />
-                        )}
                         {t["Submit"]}
                       </Button>
                     </Space>

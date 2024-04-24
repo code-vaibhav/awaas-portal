@@ -10,6 +10,7 @@ import { useRecoilValue, useRecoilState } from "recoil";
 import { SuccessMessage, ErrorMessage } from "@/components/Notification";
 import { LoadingOutlined } from "@ant-design/icons";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { checkAuth } from "@/utils/auth";
 
 const ArchivedRecords = ({ records, fetchRecords, loading }) => {
   const [id, setId] = useState("");
@@ -34,7 +35,7 @@ const ArchivedRecords = ({ records, fetchRecords, loading }) => {
         }),
       }
     )
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Record Deleted"]);
@@ -73,7 +74,7 @@ const ArchivedRecords = ({ records, fetchRecords, loading }) => {
         }),
       }
     )
-      .then((res) => res.json())
+      .then((res) => checkAuth(res, setAuth))
       .then((data) => {
         if (data.status) {
           SuccessMessage(t["Record Deleted"]);

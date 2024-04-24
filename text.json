@@ -96,7 +96,10 @@
     "Delete Selected": "Delete Selected",
     "Clear Selected": "Are you sure to deleted selected applications?",
     "Invalid Rank": "Please select a valid rank",
-    "No Records Found": "No records found"
+    "No Records Found": "No records found",
+    "View Notice": "View Notice",
+    "p1": "Insp/SI",
+    "p2": "HC/Const/Misc"
   },
   "hi": {
     "Awas Portal": "आवास पोर्टल",
@@ -117,7 +120,7 @@
     "PNO": "पीएनओ",
     "PNOs": "पीएनओs",
     "Rank": "पद",
-    "Badge No": "बैज नं0",
+    "Badge No": "बैज नम्बर",
     "Initial Waiting": "प्रारंभिक प्रतीक्षा",
     "Current Waiting": "वर्तमान प्रतीक्षा",
     "Status": "स्थिति",
@@ -193,6 +196,9 @@
     "Delete Selected": "चयनित को हटाएं",
     "Clear Selected": "क्या आप चयनित आवेदनों को हटाने के लिए सुनिश्चित हैं?",
     "Invalid Rank": "कृपया एक वैध रैंक चुनें",
-    "No Records Found": "कोई रिकॉर्ड नहीं मिला"
+    "No Records Found": "कोई रिकॉर्ड नहीं मिला",
+    "View Notice": "सूचना देखें",
+    "p1": "इंस्पेक्टर/सब इंस्पेक्टर",
+    "p2": "हेड कांस्टेबल/कांस्टेबल/विविध"
   }
 }

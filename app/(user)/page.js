@@ -16,6 +16,7 @@ import { AuditOutlined, CreditCardOutlined } from "@ant-design/icons";
 import text from "@/text.json";
 import { LoadingOutlined } from "@ant-design/icons";
 import { SuccessMessage, ErrorMessage } from "@/components/Notification";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 export default function Home() {
   const [notices, setNotices] = useState([]);
@@ -167,7 +168,12 @@ export default function Home() {
                   key={notice.heading}
                   extra={
                     <a href={notice.url} target="_blank">
-                      <Button>View Notice</Button>
+                      <Button
+                        variant="outlined"
+                        startIcon={<PictureAsPdfIcon />}
+                      >
+                        {t["View Notice"]}
+                      </Button>
                     </a>
                   }
                 >

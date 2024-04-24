@@ -7,12 +7,14 @@ export const auth = getAuth(app);
 export const logIn = async (email, password) => {
   try {
     const creds = await signInWithEmailAndPassword(auth, email, password);
-    SuccessMessage(
-      "Last Login: " +
-        new Date(creds.user.metadata.lastSignInTime).toLocaleDateString() +
-        " " +
-        new Date(creds.user.metadata.lastSignInTime).toLocaleTimeString()
-    );
+    const lastSignInTime = creds.user.metadata.lastSignInTime;
+    console.log(creds);
+    const formattedLastSignIn =
+      new Date(lastSignInTime).toLocaleDateString() +
+      " " +
+      new Date(lastSignInTime).toLocaleTimeString();
+
+    SuccessMessage("Last Login: " + formattedLastSignIn);
     return creds.user;
   } catch (error) {
     console.error("Login failed:", error.message);
@@ -31,8 +33,7 @@ export const logOut = async () => {
 
 export const checkAuth = (res, setAuth) => {
   if (res.status === 401) {
-    setAuth(null);
-    ErrorMessage("Session Expired");
+    logOut();
   }
   return res.json();
 };
