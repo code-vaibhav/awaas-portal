@@ -21,7 +21,8 @@ export const logIn = async (email, password) => {
 
     if (lastSignIn.status) {
       SuccessMessage(
-        "Last Login: " + new Date(lastSignIn.time).toLocaleString("en-IN")
+        "Last Login: " +
+          new Date(lastSignIn.message.time).toLocaleString("en-IN")
       );
     }
 
