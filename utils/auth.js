@@ -7,14 +7,24 @@ export const auth = getAuth(app);
 export const logIn = async (email, password) => {
   try {
     const creds = await signInWithEmailAndPassword(auth, email, password);
-    const lastSignInTime = creds.user.metadata.lastSignInTime;
     console.log(creds);
-    const formattedLastSignIn =
-      new Date(lastSignInTime).toLocaleDateString() +
-      " " +
-      new Date(lastSignInTime).toLocaleTimeString();
+    const lastSignIn = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/log`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${creds.user.accessToken}`,
+        },
+      }
+    ).then((res) => res.json());
 
-    SuccessMessage("Last Login: " + formattedLastSignIn);
+    if (lastSignIn.status) {
+      SuccessMessage(
+        "Last Login: " + new Date(lastSignIn.time).toLocaleString("en-IN")
+      );
+    }
+
     return creds.user;
   } catch (error) {
     console.error("Login failed:", error.message);

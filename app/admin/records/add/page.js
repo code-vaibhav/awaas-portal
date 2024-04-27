@@ -137,8 +137,8 @@ const AddRecords = () => {
           return;
         }
 
-        setProcessing(false);
-        // addRecords(jsonData);
+        // setProcessing(false);
+        addRecords(jsonData);
       };
 
       setProcessing(true);
