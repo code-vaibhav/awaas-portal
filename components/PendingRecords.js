@@ -341,6 +341,14 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
         slots={{ toolbar: GridToolbar }}
         rowSelection={false}
         loading={loading}
+        onRowClick={(params) =>
+          selected.find((id) => id === params.row.id)
+            ? setSelected(selected.filter((id) => id !== params.row.id))
+            : setSelected([...selected, params.row.id])
+        }
+        disableColumnSelector
+        disableColumnFilter
+        disableRowSelectionOnClick
       />
     </div>
   );

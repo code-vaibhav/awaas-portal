@@ -124,7 +124,7 @@ const ArchivedRecords = ({ records, fetchRecords, loading }) => {
       flex: 1,
     },
     {
-      field: "rank",
+      field: "officerRank",
       headerName: t["Rank"],
       flex: 1,
     },
