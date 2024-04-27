@@ -23,7 +23,7 @@ export default function EditRecord({ record, open, setOpen, fetchRecords }) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${auth?.token}`,
       },
-      body: JSON.stringify({ id: record.id, data: values }),
+      body: JSON.stringify({ id: record.id, data: { ...record, values } }),
     })
       .then((res) => checkAuth(res, setAuth))
       .then((data) => {
@@ -61,7 +61,6 @@ export default function EditRecord({ record, open, setOpen, fetchRecords }) {
         initialValues={{
           registrationNumber: record?.registrationNumber || "",
           name: record?.name || "",
-          rank: record?.officerRank || "",
           pno: record?.pno || "",
           badgeNumber: record?.badgeNumber || "",
           mobile: record?.mobile || "",
@@ -76,20 +75,6 @@ export default function EditRecord({ record, open, setOpen, fetchRecords }) {
         {auth.role === "admin" && (
           <Form.Item label={t["Name"]} name="name">
             <Input lang={lang} type="text" />
-          </Form.Item>
-        )}
-        {auth.role === "admin" && (
-          <Form.Item label={t["Rank"]} name="rank">
-            <Select
-              placeholder={t["Select Rank"]}
-              options={[
-                { label: t["inspector"], value: "inspector" },
-                { label: t["si"], value: "si" },
-                { label: t["constable"], value: "constable" },
-                { label: t["hc"], value: "hc" },
-                { label: t["various"], value: "various" },
-              ]}
-            />
           </Form.Item>
         )}
         <Form.Item label={t["PNO"]} name="pno">
