@@ -26,6 +26,7 @@ export default function Home() {
   const [application, setApplication] = useState(null);
   const [processing, setProcessing] = useState(false);
   const statusRef = useRef(null);
+  const [loading, setLoading] = useState(true);
 
   const contacts = [
     {
@@ -86,10 +87,11 @@ export default function Home() {
           ErrorMessage(t["Error Loading Notices"]);
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   }, []);
 
-  return notices.length ? (
+  return !loading ? (
     <div>
       <Flex
         style={{ backgroundColor: "#d5f2fe" }}
