@@ -147,17 +147,6 @@ const ArchivedRecords = ({ records, fetchRecords, loading }) => {
       field: "applicationDate",
       headerName: t["Application Date"],
       flex: 1,
-      valueGetter: (params) => {
-        const [day, month, year] = params.row.applicationDate.split("/");
-        const formattedDate = new Date(
-          `${year}-${month}-${day}`
-        ).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
-        return formattedDate;
-      },
     },
     auth.role === "admin" && {
       field: "action",
