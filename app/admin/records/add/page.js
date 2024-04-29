@@ -115,7 +115,7 @@ const AddRecords = () => {
                   strippedRecord[text["hi"][`Registration No`]] || ""
                 ) || "-",
               applicationDate: strippedRecord[text["hi"][`Application Date`]]
-                .split(".")
+                .split(/[-./]/)
                 .reduce((acc, val) => (acc ? acc + "/" + val : val), ""),
               rank:
                 rankMap[

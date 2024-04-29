@@ -84,8 +84,13 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
       .finally(() => setProcessing(false));
   };
 
-  const deleteSelected = () => {
-    setProcessing("delete");
+  const clear = (type) => {
+    if (type === "selected") {
+      setProcessing("selected");
+    } else {
+      setProcessing("all");
+    }
+
     fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/active/delete/many`,
       {
@@ -96,7 +101,7 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ids: selected,
+          ids: type === "selected" ? selected : records.map((r) => r.id),
         }),
       }
     )
@@ -304,14 +309,15 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
             title={t["Clear Selected"]}
             okText={t["Yes"]}
             cancelText={t["No"]}
-            onConfirm={() => deleteSelected()}
+            onConfirm={() => clear("selected")}
           >
             <Button
               variant="outlined"
               color="warning"
               disabled={!!processing || selected.length === 0}
+              style={{ marginRight: "10px" }}
               startIcon={
-                processing === `delete` ? (
+                processing === `selected` ? (
                   <Spin
                     indicator={
                       <LoadingOutlined style={{ fontSize: 24 }} spin />
@@ -323,6 +329,34 @@ const PendingRecords = ({ records, fetchRecords, loading }) => {
               }
             >
               {t["Delete Selected"]}
+            </Button>
+          </Popconfirm>
+        )}
+        {auth.role === "admin" && (
+          <Popconfirm
+            placement="topLeft"
+            title={t["Delete List"]}
+            okText={t["Yes"]}
+            cancelText={t["No"]}
+            onConfirm={() => clear("all")}
+          >
+            <Button
+              variant="outlined"
+              color="warning"
+              disabled={!!processing || !records?.length}
+              startIcon={
+                processing === "all" ? (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }
+                  />
+                ) : (
+                  <DeleteIcon fontSize="inherit" />
+                )
+              }
+            >
+              {t["Clear List"]}
             </Button>
           </Popconfirm>
         )}

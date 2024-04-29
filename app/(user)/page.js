@@ -307,9 +307,7 @@ export default function Home() {
                   {
                     key: 5,
                     label: t["Application Date"],
-                    children: new Date(
-                      application["applicationDate"]
-                    ).toLocaleDateString("en-GB"),
+                    children: application["applicationDate"],
                   },
                   {
                     key: 6,
@@ -325,6 +323,7 @@ export default function Home() {
                     key: 8,
                     label: t["Current Waiting"],
                     children: application["currentWaiting"],
+                    labelStyle: { backgroundColor: "#1976d2", color: "white" },
                   },
                   {
                     key: 9,
