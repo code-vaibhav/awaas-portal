@@ -228,7 +228,11 @@ export default function Home() {
           className="desktop"
         />
 
-        <section ref={statusRef} id="status" style={{ width: "50%" }}>
+        <section
+          ref={statusRef}
+          id="status"
+          style={{ width: "50%", margin: "0 auto" }}
+        >
           <Typography variant="h4" align="center" gutterBottom my={4}>
             {t["Check Allocation Status"]}
           </Typography>
